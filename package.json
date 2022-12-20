@@ -1,0 +1,19 @@
+{
+  "name": "voting_platform",
+  "version": "1.0.0",
+  "description": "A Voting Platform where everyone can vote",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/kshitijv256/Voting-App.git"
+  },
+  "author": "Kshitij Verma",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kshitijv256/Voting-App/issues"
+  },
+  "homepage": "https://github.com/kshitijv256/Voting-App#readme"
+}
