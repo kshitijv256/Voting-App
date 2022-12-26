@@ -22,6 +22,6 @@ describe("Voting App", () => {
     const res = await agent
       .post("/elections")
       .send({ title: "Test Election", description: "Test Description" });
-    expect(res.statusCode).toEqual(200);
+    expect(res.statusCode).toEqual(302);
   });
 });

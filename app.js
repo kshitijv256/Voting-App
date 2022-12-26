@@ -1,6 +1,8 @@
+/* eslint-disable no-undef */
 // imports
 
 const express = require("express");
+// eslint-disable-next-line no-unused-vars
 const { Election, Question, Answer } = require("./models");
 const path = require("path");
 const bodyParser = require("body-parser");
@@ -24,6 +26,11 @@ app.use(express.static(path.join(__dirname, "public")));
 app.get("/", (req, res) => {
   res.render("index");
 });
+
+app.get("/elections", async (req, res) => {
+  const elections = await Election.findAll();
+  res.render("elections", { elections });
+});
 //==================================================
 
 // post requests
@@ -35,7 +42,7 @@ app.post("/elections", (req, res) => {
       title: req.body.title,
       description: req.body.description,
     });
-    res.sendStatus(200);
+    res.redirect("/elections");
   } catch (error) {
     console.log(error);
     res.sendStatus(500);
