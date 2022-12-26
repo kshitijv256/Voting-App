@@ -1,4 +1,5 @@
 const express = require('express');
+const { Election, Question, Answer } = require('./models');
 const path = require("path");
 const bodyParser = require("body-parser");
 
@@ -14,6 +15,21 @@ app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
     res.render('index');
+    });
+
+
+app.post('/elections', (req, res) => {
+    console.log(req.body);
+    try {
+        Election.create({
+            title: req.body.title,
+            description: req.body.description,
+        });
+        res.send('Election created');
+    } catch (error) {
+        console.log(error);
+        res.send('Error creating election');
+    }
     });
 
 module.exports = app;
