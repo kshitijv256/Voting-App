@@ -35,10 +35,10 @@ app.post("/elections", (req, res) => {
       title: req.body.title,
       description: req.body.description,
     });
-    res.send("Election created");
+    res.sendStatus(200);
   } catch (error) {
     console.log(error);
-    res.send("Error creating election");
+    res.sendStatus(500);
   }
 });
 
