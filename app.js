@@ -84,6 +84,24 @@ app.post("/questions", async (req, res) => {
     res.sendStatus(500);
   }
 });
+
+app.post("/questions/:id", async (req, res) => {
+  console.log(req.body);
+  try {
+    await Question.update(
+      {
+        body: req.body.body,
+      },
+      {
+        where: { id: req.params.id },
+      }
+    );
+    res.redirect(`/elections/${req.body.electionId}`);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+});
 //==================================================
 
 module.exports = app;

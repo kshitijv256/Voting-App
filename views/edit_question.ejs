@@ -17,7 +17,7 @@
     <div class="flex flex-row justify-center">
       <div class="shadow-xl p-4 mt-4 rounded-md">
         <h1 class="text-2xl font-bold mb-4">Edit Question</h1>
-        <form action="/questions" method="post">
+        <form action="/questions/<%= question.id %>" method="post">
           <div class="flex-auto">
             <label for="body">Question</label>
             <input
