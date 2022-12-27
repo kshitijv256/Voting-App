@@ -37,4 +37,16 @@ describe("Voting App", () => {
     });
     expect(res.statusCode).toEqual(302);
   });
+
+  test("Updating Question", async () => {
+    const question = await db.Question.findOne();
+    const id = question.id;
+    const res = await agent
+      .post(`/questions/${question.id}`)
+      .send({ body: "Updated Question" });
+    expect(res.statusCode).toEqual(302);
+
+    const updatedQuestion = await db.Question.findByPk(id);
+    expect(updatedQuestion.body).toEqual("Updated Question");
+  });
 });
