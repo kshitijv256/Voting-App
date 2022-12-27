@@ -24,4 +24,14 @@ describe("Voting App", () => {
       .send({ title: "Test Election", description: "Test Description" });
     expect(res.statusCode).toEqual(302);
   });
+  test("Adding Question", async () => {
+    const election = await db.Election.findOne();
+    const res = await agent.post("/questions").send({
+      body: "Test Question",
+      selected: null,
+      correct: null,
+      electionId: election.id,
+    });
+    expect(res.statusCode).toEqual(302);
+  });
 });
