@@ -5,18 +5,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>Edit</title>
+    <title>Add Question</title>
   </head>
   <body>
     <div class="p-5 bg-blue-400 font-sans text-2xl">
         <span>
           <h1>The app is running</h1>
-            <p class="text-green-200"><a href="/elections/<%= question.electionId %>">Back</a></p>
+            <p class="text-green-200"><a href="/elections/<%= electionId %>">Back</a></p>
       </span>
     </div>
     <div class="flex flex-row justify-center">
       <div class="shadow-xl p-4 mt-4 rounded-md">
-        <h1 class="text-2xl font-bold mb-4">Edit Question</h1>
+        <h1 class="text-2xl font-bold mb-4">Add Question</h1>
         <form action="/questions" method="post">
           <div class="flex-auto">
             <label for="body">Question</label>
@@ -25,15 +25,14 @@
               name="body"
               id="body"
               class="rounded w-full p-2 border-2 border-blue-300"
-              value="<%= question.body %>"
             />
           </div>
-          <input type="hidden" name="electionId" value="<%= question.electionId %>">
+          <input type="hidden" name="electionId" value="<%= electionId %>">
           <button
             class="bg-blue-500 p-2 rounded m-2 hover:bg-blue-600"
             type="submit"
           >
-            Edit
+            Add
           </button>
         </form>
       </div>

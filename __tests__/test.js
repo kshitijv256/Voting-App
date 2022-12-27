@@ -10,6 +10,7 @@ describe("Voting App", () => {
     server = app.listen(3000, () => {});
     agent = request.agent(server);
   });
+
   afterAll(async () => {
     try {
       await db.sequelize.close();
@@ -18,12 +19,14 @@ describe("Voting App", () => {
       console.log(error);
     }
   });
+
   test("Adding Election", async () => {
     const res = await agent
       .post("/elections")
       .send({ title: "Test Election", description: "Test Description" });
     expect(res.statusCode).toEqual(302);
   });
+
   test("Adding Question", async () => {
     const election = await db.Election.findOne();
     const res = await agent.post("/questions").send({

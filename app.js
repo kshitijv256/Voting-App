@@ -41,7 +41,7 @@ app.get("/elections/:id", async (req, res) => {
 });
 
 app.get("/questions/add/:electionId", (req, res) => {
-  res.render("edit_question", { electionId: req.params.electionId });
+  res.render("add_question", { electionId: req.params.electionId });
 });
 
 app.get("/questions/edit/:id", async (req, res) => {
