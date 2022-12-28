@@ -30,7 +30,8 @@ describe("Voting App", () => {
   test("Adding Question", async () => {
     const election = await db.Election.findOne();
     const res = await agent.post("/questions").send({
-      body: "Test Question",
+      title: "Test Question",
+      description: "Test Description",
       selected: null,
       correct: null,
       electionId: election.id,
@@ -41,12 +42,14 @@ describe("Voting App", () => {
   test("Updating Question", async () => {
     const question = await db.Question.findOne();
     const id = question.id;
-    const res = await agent
-      .post(`/questions/${question.id}`)
-      .send({ body: "Updated Question" });
+    const res = await agent.post(`/questions/${question.id}`).send({
+      title: "Updated Question",
+      description: "Updated Description",
+    });
     expect(res.statusCode).toEqual(302);
 
     const updatedQuestion = await db.Question.findByPk(id);
-    expect(updatedQuestion.body).toEqual("Updated Question");
+    expect(updatedQuestion.title).toEqual("Updated Question");
+    expect(updatedQuestion.description).toEqual("Updated Description");
   });
 });

@@ -73,7 +73,8 @@ app.post("/questions", async (req, res) => {
   console.log(req.body);
   try {
     await Question.create({
-      body: req.body.body,
+      title: req.body.title,
+      description: req.body.description,
       selected: null,
       correct: null,
       electionId: req.body.electionId,
@@ -90,7 +91,8 @@ app.post("/questions/:id", async (req, res) => {
   try {
     await Question.update(
       {
-        body: req.body.body,
+        title: req.body.title,
+        description: req.body.description,
       },
       {
         where: { id: req.params.id },

@@ -15,7 +15,8 @@ module.exports = (sequelize, DataTypes) => {
   }
   Question.init(
     {
-      body: DataTypes.STRING,
+      title: DataTypes.STRING,
+      description: DataTypes.STRING,
       selected: DataTypes.INTEGER,
       correct: DataTypes.INTEGER,
     },
