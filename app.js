@@ -125,6 +125,32 @@ app.post("/answers/:id", async (req, res) => {
     res.sendStatus(500);
   }
 });
+
+app.post("/answers/edit/:id", async (req, res) => {
+  console.log(req.body);
+  try {
+    await Answer.update(
+      {
+        body: req.body.body,
+      },
+      {
+        where: { id: req.params.id },
+      }
+    );
+    res.redirect(`/questions/edit/${req.body.questionId}`);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+});
 //==================================================
 
 module.exports = app;
+
+//==================================================
+
+//Add delete option for questions
+
+// Add delete option for answers
+
+// add correct answer option for questions
