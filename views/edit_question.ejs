@@ -9,13 +9,15 @@
   </head>
   <body>
     <div class="p-5 bg-blue-400 font-sans text-2xl">
-        <span>
-          <h1>The app is running</h1>
-            <p class="text-green-200"><a href="/elections/<%= question.electionId %>">Back</a></p>
+      <span>
+        <h1>The app is running</h1>
+        <p class="text-green-200">
+          <a href="/elections/<%= question.electionId %>">Back</a>
+        </p>
       </span>
     </div>
     <div class="flex flex-row justify-center">
-      <div class="shadow-xl p-4 mt-4 rounded-md">
+      <div class="shadow-xl p-4 mt-4 rounded-xl">
         <h1 class="text-2xl font-bold mb-4">Edit Question</h1>
         <form action="/questions/<%= question.id %>" method="post">
           <div class="flex-auto">
@@ -38,13 +40,43 @@
               value="<%= question.description %>"
             />
           </div>
-          <input type="hidden" name="electionId" value="<%= question.electionId %>">
-          <button
-            class="bg-blue-500 p-2 rounded m-2 hover:bg-blue-600"
-            type="submit"
-          >
-            Edit
-          </button>
+          <input
+            type="hidden"
+            name="electionId"
+            value="<%= question.electionId %>"
+          />
+          <div class="flex flex-row justify-between mx-4 mt-4">
+            <h1 class="text-lg font-semibold">Answers</h1>
+            <div
+              class="bg-blue-500 rounded p-1 hover:bg-blue-600 hover:cursor-pointer px-2"
+            >
+              <a href="/answers/<%= question.id %>">Add</a>
+            </div>
+          </div>
+          <% for(var i = 0; i < answers.length; i++) { %>
+          <div class="flex flex-row justify-between mx-4 mt-4">
+            <input
+              type="text"
+              name="answer_<%= answers[i].id %>"
+              id="answer_<%= answers[i].id %>"
+              class="rounded w-full p-2 border-2 border-blue-300"
+              value="<%= answers[i].body %>"
+            />
+            <div
+              class="bg-blue-500 rounded p-1 hover:bg-blue-600 hover:cursor-pointer px-2"
+            >
+              Delete
+            </div>
+          </div>
+          <% } %>
+          <div class="flex flex-row w-full justify-end px-2 py-4">
+            <button
+              class="bg-blue-500 p-2 rounded m-2 hover:bg-blue-600"
+              type="submit"
+            >
+              Save Changes
+            </button>
+          </div>
         </form>
       </div>
     </div>

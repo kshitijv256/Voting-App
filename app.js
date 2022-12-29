@@ -51,6 +51,12 @@ app.get("/questions/edit/:id", async (req, res) => {
   });
   res.render("edit_question", { question, answers });
 });
+
+app.get("/answers/:id", async (req, res) => {
+  const question = await Question.findByPk(req.params.id);
+  res.render("add_answer", { question });
+});
+
 //==================================================
 
 // post requests
@@ -99,6 +105,21 @@ app.post("/questions/:id", async (req, res) => {
       }
     );
     res.redirect(`/elections/${req.body.electionId}`);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+});
+
+app.post("/answers/:id", async (req, res) => {
+  console.log(req.body);
+  try {
+    await Answer.create({
+      body: req.body.body,
+      selected: req.body.selected,
+      questionId: req.params.id,
+    });
+    res.redirect(`/questions/edit/${req.params.id}`);
   } catch (error) {
     console.log(error);
     res.sendStatus(500);
