@@ -143,6 +143,30 @@ app.post("/answers/edit/:id", async (req, res) => {
     res.sendStatus(500);
   }
 });
+
+//==================================================
+// put requests
+
+app.put("/answers/edit/:id", async (req, res) => {
+  console.log(req.body);
+  try {
+    const answer = await Answer.findByPk(req.params.id);
+    const question = await Question.findByPk(answer.questionId);
+    await Question.update(
+      {
+        correct: req.params.id,
+      },
+      {
+        where: { id: question.id },
+      }
+    );
+    res.redirect(`/questions/edit/${req.body.questionId}`);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+});
+
 //==================================================
 
 module.exports = app;
