@@ -173,11 +173,11 @@ app.put("/answers/edit/:id", async (req, res) => {
 app.delete("/questions/:id", async (req, res) => {
   console.log(req.body);
   try {
-    const question = await Question.findByPk(req.params.id);
+    await Question.findByPk(req.params.id);
     await Question.destroy({
       where: { id: req.params.id },
     });
-    res.redirect(`/elections/${question.electionId}`);
+    res.sendStatus(200);
   } catch (error) {
     console.log(error);
     res.sendStatus(500);

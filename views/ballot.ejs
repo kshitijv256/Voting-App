@@ -5,6 +5,24 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      function deleteQuestion(id) {
+        fetch(`/questions/${id}`, {
+          method: "delete",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((res) => {
+            if (res.ok) {
+              window.location.reload();
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+    </script>
     <title>Election Ballot</title>
   </head>
   <body>
@@ -14,22 +32,33 @@
         <p class="text-green-200"><a href="/elections">Back</a></p>
       </span>
     </div>
-    <div class="flex"><a
+    <div class="flex">
+      <a
         href="/questions/add/<%= election.id %>"
         class="bg-blue-500 p-2 rounded m-2 hover:bg-blue-600"
         >Add</a
-      ></div>
+      >
+    </div>
     <div class="flex flex-col items-center">
       <% for(var i = 0; i < questions.length; i++) { %>
       <div class="w-4/5 shadow-xl p-4 mt-4 rounded-md">
         <h1 class="text-2xl font-bold mb-4"><%= questions[i].title %></h1>
-        <p class="text-lg text-gray-600 mb-4"><%= questions[i].description %></p>
+        <p class="text-lg text-gray-600 mb-4">
+          <%= questions[i].description %>
+        </p>
         <p class="text-lg text-gray-600 mb-4">~To add answers~</p>
         <a
           href="/questions/edit/<%= questions[i].id %>"
           class="bg-blue-500 p-2 rounded m-2 hover:bg-blue-600"
           >Edit</a
         >
+        <a
+          href="#"
+          onclick="deleteQuestion('<%= questions[i].id %>')"
+          class="bg-red-500 rounded px-1 py-2 hover:bg-red-600 hover:cursor-pointer"
+        >
+          Delete
+        </a>
       </div>
       <% } %>
     </div>
