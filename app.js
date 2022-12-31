@@ -168,6 +168,37 @@ app.put("/answers/edit/:id", async (req, res) => {
 });
 
 //==================================================
+// delete requests
+
+app.delete("/questions/:id", async (req, res) => {
+  console.log(req.body);
+  try {
+    const question = await Question.findByPk(req.params.id);
+    await Question.destroy({
+      where: { id: req.params.id },
+    });
+    res.redirect(`/elections/${question.electionId}`);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+});
+
+app.delete("/answers/:id", async (req, res) => {
+  console.log(req.body);
+  try {
+    await Answer.findByPk(req.params.id);
+    await Answer.destroy({
+      where: { id: req.params.id },
+    });
+    res.sendStatus(200);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+});
+
+//==================================================
 
 module.exports = app;
 
@@ -177,4 +208,4 @@ module.exports = app;
 
 // Add delete option for answers
 
-// add correct answer option for questions
+// add correct answer option for questions X

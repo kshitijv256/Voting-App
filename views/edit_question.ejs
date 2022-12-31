@@ -11,17 +11,32 @@
           method: "put",
           headers: {
             "Content-Type": "application/json",
-          }
+          },
         })
           .then((res) => {
             if (res.ok) {
-              window.location.reload()
+              window.location.reload();
             }
           })
           .catch((err) => {
-            console.log(err)
-          }
-          )
+            console.log(err);
+          });
+      }
+      function deleteAnswer(id) {
+        fetch(`/answers/${id}`, {
+          method: "delete",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((res) => {
+            if (res.ok) {
+              window.location.reload();
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       }
     </script>
     <title>Edit</title>
@@ -36,7 +51,7 @@
       </span>
     </div>
     <div class="flex flex-row justify-center">
-      <div class="shadow-xl p-4 mt-4 rounded-xl">
+      <div class="shadow-xl p-4 mt-4 rounded-xl w-3/4">
         <h1 class="text-2xl font-bold mb-4">Edit Question</h1>
         <form action="/questions/<%= question.id %>" method="post">
           <div class="flex-auto">
@@ -78,45 +93,61 @@
           <div
             class="bg-blue-500 rounded p-1 hover:bg-blue-600 hover:cursor-pointer px-2"
           >
-            <a href="/answers/<%= question.id %>">Add</a>
+            <a href="/answers/<%= question.id %>">+Add more</a>
           </div>
         </div>
         <% for(var i = 0; i < answers.length; i++) { %>
-          <div class="flex flex-row mx-4 my-2">
-            <form action="/answers/edit/<%= answers[i].id %>" method="post">
-              <input
-                type="text"
-                name="body"
-                id="<%= answers[i].id %>"
-                class="rounded w-full p-2 border-2 border-blue-300"
-                value="<%= answers[i].body %>"
-              />
-              <input
-                type="hidden"
-                name="questionId"
-                value="<%= answers[i].questionId %>"
-              />
+        <div class="flex flex-row mx-4 my-2">
+          <form
+            action="/answers/edit/<%= answers[i].id %>"
+            method="post"
+            class="w-full"
+          >
+            <input
+              type="text"
+              name="body"
+              id="<%= answers[i].id %>"
+              class="rounded w-full p-2 border-2 border-blue-300"
+              value="<%= answers[i].body %>"
+            />
+            <input
+              type="hidden"
+              name="questionId"
+              value="<%= answers[i].questionId %>"
+            />
+            <div class="flex flex-row mt-2">
               <button
                 type="submit"
-                class="bg-blue-500 p-2 rounded m-2 hover:bg-blue-600"
+                class="bg-blue-500 p-2 h-3/4 rounded hover:bg-blue-600"
               >
                 Save
               </button>
-              <div
-                class="flex-auto bg-green-500 rounded p-1 hover:bg-green-600 hover:cursor-pointer px-2"
+              <a
+                href="#"
+                onclick="selectCorrect('<%= answers[i].id %>')"
+                class="pl-2"
               >
-                <a href="#" onclick="selectCorrect('<%= answers[i].id %>')">
+                <div
+                  class="flex-auto bg-green-500 rounded px-1 py-2 hover:bg-green-600 hover:cursor-pointer"
+                >
                   Correct
-                </a>
-              </div>
-              <div
-                class="flex-auto bg-red-500 rounded p-1 hover:bg-red-600 hover:cursor-pointer px-2"
+                </div>
+              </a>
+              <a
+                href="#"
+                onclick="deleteAnswer('<%= answers[i].id %>')"
+                class="pl-2"
               >
-                Delete
-              </div>
-            </form>
-          </div>
-          <% } %>
+                <div
+                  class="flex-auto bg-red-500 rounded px-1 py-2 hover:bg-red-600 hover:cursor-pointer"
+                >
+                  Delete
+                </div>
+              </a>
+            </div>
+          </form>
+        </div>
+        <% } %>
       </div>
     </div>
   </body>
