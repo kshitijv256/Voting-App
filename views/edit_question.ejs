@@ -3,15 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="csrf-token" content="<%= csrfToken %>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+      let token = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
       function selectCorrect(id) {
         fetch(`/answers/edit/${id}`, {
           method: "put",
           headers: {
             "Content-Type": "application/json",
           },
+          body: JSON.stringify({
+          _csrf: token
+        }),
         })
           .then((res) => {
             if (res.ok) {
@@ -28,6 +33,9 @@
           headers: {
             "Content-Type": "application/json",
           },
+          body: JSON.stringify({
+          _csrf: token
+        }),
         })
           .then((res) => {
             if (res.ok) {
@@ -115,6 +123,7 @@
               name="questionId"
               value="<%= answers[i].questionId %>"
             />
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <div class="flex flex-row mt-2">
               <button
                 type="submit"

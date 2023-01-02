@@ -9,9 +9,11 @@
   </head>
   <body>
     <div class="p-5 bg-blue-400 font-sans text-2xl">
-        <span>
-          <h1>The app is running</h1>
-            <p class="text-green-200"><a href="/questions/edit/<%= question.id %>">Back</a></p>
+      <span>
+        <h1>The app is running</h1>
+        <p class="text-green-200">
+          <a href="/questions/edit/<%= question.id %>">Back</a>
+        </p>
       </span>
     </div>
     <div class="flex flex-row justify-center">
@@ -26,6 +28,7 @@
               id="body"
               class="rounded w-full p-2 border-2 border-blue-300"
             />
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
           </div>
           <button
             class="bg-blue-500 p-2 rounded m-2 hover:bg-blue-600"

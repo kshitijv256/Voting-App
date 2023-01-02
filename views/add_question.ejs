@@ -9,9 +9,11 @@
   </head>
   <body>
     <div class="p-5 bg-blue-400 font-sans text-2xl">
-        <span>
-          <h1>The app is running</h1>
-            <p class="text-green-200"><a href="/elections/<%= electionId %>">Back</a></p>
+      <span>
+        <h1>The app is running</h1>
+        <p class="text-green-200">
+          <a href="/elections/<%= electionId %>">Back</a>
+        </p>
       </span>
     </div>
     <div class="flex flex-row justify-center">
@@ -36,7 +38,8 @@
               class="rounded w-full p-2 border-2 border-blue-300"
             />
           </div>
-          <input type="hidden" name="electionId" value="<%= electionId %>">
+          <input type="hidden" name="electionId" value="<%= electionId %>" />
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
           <button
             class="bg-blue-500 p-2 rounded m-2 hover:bg-blue-600"
             type="submit"

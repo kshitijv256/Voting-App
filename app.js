@@ -94,21 +94,21 @@ app.use(function (request, response, next) {
 
 // get requests
 
-app.get("/", async function (request, response) {
-  if (request.user) {
-    return response.render("index", {
-      csrfToken: request.csrfToken(),
+app.get("/", async function (req, res) {
+  if (req.user) {
+    return res.render("index", {
+      csrfToken: req.csrfToken(),
     });
   } else {
-    return response.render("landing", {
-      csrfToken: request.csrfToken(),
+    return res.render("index", {
+      csrfToken: req.csrfToken(),
     });
   }
 });
 
 app.get("/elections", async (req, res) => {
   const elections = await Election.findAll();
-  res.render("elections", { elections });
+  return res.render("elections", { elections, csrfToken: req.csrfToken() });
 });
 
 app.get("/elections/:id", async (req, res) => {
@@ -116,11 +116,18 @@ app.get("/elections/:id", async (req, res) => {
   const questions = await Question.findAll({
     where: { electionId: req.params.id },
   });
-  res.render("ballot", { election, questions });
+  return res.render("ballot", {
+    election,
+    questions,
+    csrfToken: req.csrfToken(),
+  });
 });
 
 app.get("/questions/add/:electionId", (req, res) => {
-  res.render("add_question", { electionId: req.params.electionId });
+  return res.render("add_question", {
+    electionId: req.params.electionId,
+    csrfToken: req.csrfToken(),
+  });
 });
 
 app.get("/questions/edit/:id", async (req, res) => {
@@ -128,12 +135,16 @@ app.get("/questions/edit/:id", async (req, res) => {
   const answers = await Answer.findAll({
     where: { questionId: req.params.id },
   });
-  res.render("edit_question", { question, answers });
+  return res.render("edit_question", {
+    question,
+    answers,
+    csrfToken: req.csrfToken(),
+  });
 });
 
 app.get("/answers/:id", async (req, res) => {
   const question = await Question.findByPk(req.params.id);
-  res.render("add_answer", { question });
+  return res.render("add_answer", { question, csrfToken: req.csrfToken() });
 });
 
 //==================================================
@@ -147,10 +158,10 @@ app.post("/elections", async (req, res) => {
       title: req.body.title,
       description: req.body.description,
     });
-    res.redirect("/elections");
+    return res.redirect("/elections");
   } catch (error) {
     console.log(error);
-    res.sendStatus(500);
+    return res.sendStatus(500);
   }
 });
 
