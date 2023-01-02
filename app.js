@@ -7,12 +7,11 @@ const cookieParser = require("cookie-parser");
 const passport = require("passport"); // using passport
 const LocalStrategy = require("passport-local"); // using passport-local as strategy
 const session = require("express-session");
-// const connectEnsureLogin = require("connect-ensure-login");
+const connectEnsureLogin = require("connect-ensure-login");
 const bcrypt = require("bcrypt");
-// const saltRounds = 10;
+const saltRounds = 10;
 const flash = require("connect-flash");
-// eslint-disable-next-line no-unused-vars
-const { Election, Question, Answer } = require("./models");
+const { Election, Question, Answer, Admin } = require("./models");
 const path = require("path");
 const bodyParser = require("body-parser");
 const app = express();
@@ -52,7 +51,7 @@ passport.use(
       passwordField: "password",
     },
     (username, password, done) => {
-      User.findOne({
+      Admin.findOne({
         where: {
           email: username,
         },
@@ -76,7 +75,7 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser((id, done) => {
-  User.findByPk(id)
+  Admin.findByPk(id)
     .then((user) => {
       done(null, user);
     })
@@ -96,197 +95,300 @@ app.use(function (request, response, next) {
 
 app.get("/", async function (req, res) {
   if (req.user) {
-    return res.render("index", {
-      csrfToken: req.csrfToken(),
-    });
+    return res.redirect("/elections");
   } else {
-    return res.render("index", {
+    return res.render("landing", {
       csrfToken: req.csrfToken(),
     });
   }
 });
 
-app.get("/elections", async (req, res) => {
+app.get("/signup", (req, res) => {
+  return res.render("signup", { csrfToken: req.csrfToken() });
+});
+
+app.get("/login", (req, res) => {
+  res.render("login", { csrfToken: req.csrfToken() });
+});
+
+app.get("/logout", (request, response, next) => {
+  request.logout((err) => {
+    if (err) return next(err);
+    response.redirect("/login");
+  });
+});
+
+app.get("/elections", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
+  const adminId = req.user.id;
+  const admin = await Admin.findByPk(adminId);
+  const name = admin.firstName + " " + admin.lastName;
   const elections = await Election.findAll();
-  return res.render("elections", { elections, csrfToken: req.csrfToken() });
+  res.render("elections", { elections, name, csrfToken: req.csrfToken() });
 });
 
-app.get("/elections/:id", async (req, res) => {
-  const election = await Election.findByPk(req.params.id);
-  const questions = await Question.findAll({
-    where: { electionId: req.params.id },
-  });
-  return res.render("ballot", {
-    election,
-    questions,
-    csrfToken: req.csrfToken(),
-  });
-});
+app.get(
+  "/elections/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    const election = await Election.findByPk(req.params.id);
+    const questions = await Question.findAll({
+      where: { electionId: req.params.id },
+    });
+    res.render("ballot", {
+      election,
+      questions,
+      csrfToken: req.csrfToken(),
+    });
+  }
+);
 
-app.get("/questions/add/:electionId", (req, res) => {
-  return res.render("add_question", {
-    electionId: req.params.electionId,
-    csrfToken: req.csrfToken(),
-  });
-});
+app.get(
+  "/questions/add/:electionId",
+  connectEnsureLogin.ensureLoggedIn(),
+  (req, res) => {
+    res.render("add_question", {
+      electionId: req.params.electionId,
+      csrfToken: req.csrfToken(),
+    });
+  }
+);
 
-app.get("/questions/edit/:id", async (req, res) => {
-  const question = await Question.findByPk(req.params.id);
-  const answers = await Answer.findAll({
-    where: { questionId: req.params.id },
-  });
-  return res.render("edit_question", {
-    question,
-    answers,
-    csrfToken: req.csrfToken(),
-  });
-});
+app.get(
+  "/questions/edit/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    const question = await Question.findByPk(req.params.id);
+    const answers = await Answer.findAll({
+      where: { questionId: req.params.id },
+    });
+    if (req.accepts("html")) {
+      return res.render("edit_question", {
+        question,
+        answers,
+        csrfToken: req.csrfToken(),
+      });
+    } else {
+      return res.json({ question, answers });
+    }
+  }
+);
 
-app.get("/answers/:id", async (req, res) => {
-  const question = await Question.findByPk(req.params.id);
-  return res.render("add_answer", { question, csrfToken: req.csrfToken() });
-});
+app.get(
+  "/answers/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    const question = await Question.findByPk(req.params.id);
+    res.render("add_answer", { question, csrfToken: req.csrfToken() });
+  }
+);
 
 //==================================================
 
 // post requests
 
-app.post("/elections", async (req, res) => {
+app.post(
+  "/session",
+  passport.authenticate("local", {
+    failureRedirect: "/login",
+    failureFlash: true,
+  }),
+  (request, response) => {
+    response.redirect("/elections");
+  }
+);
+
+app.post("/admins", async (req, res) => {
   console.log(req.body);
   try {
-    await Election.create({
-      title: req.body.title,
-      description: req.body.description,
+    const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
+    const user = await Admin.create({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      password: hashedPassword,
     });
-    return res.redirect("/elections");
+    req.login(user, (err) => {
+      if (err) {
+        console.log(err);
+        return res.sendStatus(500);
+      }
+      res.redirect("/elections");
+    });
   } catch (error) {
     console.log(error);
-    return res.sendStatus(500);
+    return res.redirect("/signup");
   }
 });
 
-app.post("/questions", async (req, res) => {
-  console.log(req.body);
-  try {
-    await Question.create({
-      title: req.body.title,
-      description: req.body.description,
-      selected: null,
-      correct: null,
-      electionId: req.body.electionId,
-    });
-    res.redirect(`/elections/${req.body.electionId}`);
-  } catch (error) {
-    console.log(error);
-    res.sendStatus(500);
-  }
-});
-
-app.post("/questions/:id", async (req, res) => {
-  console.log(req.body);
-  try {
-    await Question.update(
-      {
+app.post(
+  "/elections",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    console.log(req.body);
+    try {
+      await Election.create({
         title: req.body.title,
         description: req.body.description,
-      },
-      {
-        where: { id: req.params.id },
-      }
-    );
-    res.redirect(`/elections/${req.body.electionId}`);
-  } catch (error) {
-    console.log(error);
-    res.sendStatus(500);
+        adminId: req.user.id,
+      });
+      res.redirect("/elections");
+    } catch (error) {
+      console.log(error);
+      res.sendStatus(500);
+    }
   }
-});
+);
 
-app.post("/answers/:id", async (req, res) => {
-  console.log(req.body);
-  try {
-    await Answer.create({
-      body: req.body.body,
-      selected: req.body.selected,
-      questionId: req.params.id,
-    });
-    res.redirect(`/questions/edit/${req.params.id}`);
-  } catch (error) {
-    console.log(error);
-    res.sendStatus(500);
+app.post(
+  "/questions",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    console.log(req.body);
+    try {
+      await Question.create({
+        title: req.body.title,
+        description: req.body.description,
+        selected: null,
+        correct: null,
+        electionId: req.body.electionId,
+      });
+      res.redirect(`/elections/${req.body.electionId}`);
+    } catch (error) {
+      console.log(error);
+      res.sendStatus(500);
+    }
   }
-});
+);
 
-app.post("/answers/edit/:id", async (req, res) => {
-  console.log(req.body);
-  try {
-    await Answer.update(
-      {
+app.post(
+  "/questions/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    console.log(req.body);
+    try {
+      await Question.update(
+        {
+          title: req.body.title,
+          description: req.body.description,
+        },
+        {
+          where: { id: req.params.id },
+        }
+      );
+      res.redirect(`/elections/${req.body.electionId}`);
+    } catch (error) {
+      console.log(error);
+      res.sendStatus(500);
+    }
+  }
+);
+
+app.post(
+  "/answers/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    console.log(req.body);
+    try {
+      await Answer.create({
         body: req.body.body,
-      },
-      {
-        where: { id: req.params.id },
-      }
-    );
-    res.redirect(`/questions/edit/${req.body.questionId}`);
-  } catch (error) {
-    console.log(error);
-    res.sendStatus(500);
+        selected: req.body.selected,
+        questionId: req.params.id,
+      });
+      res.redirect(`/questions/edit/${req.params.id}`);
+    } catch (error) {
+      console.log(error);
+      res.sendStatus(500);
+    }
   }
-});
+);
+
+app.post(
+  "/answers/edit/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    console.log(req.body);
+    try {
+      await Answer.update(
+        {
+          body: req.body.body,
+        },
+        {
+          where: { id: req.params.id },
+        }
+      );
+      res.redirect(`/questions/edit/${req.body.questionId}`);
+    } catch (error) {
+      console.log(error);
+      res.sendStatus(500);
+    }
+  }
+);
 
 //==================================================
 // put requests
 
-app.put("/answers/edit/:id", async (req, res) => {
-  console.log(req.body);
-  try {
-    const answer = await Answer.findByPk(req.params.id);
-    const question = await Question.findByPk(answer.questionId);
-    await Question.update(
-      {
-        correct: req.params.id,
-      },
-      {
-        where: { id: question.id },
-      }
-    );
-    res.redirect(`/questions/edit/${req.body.questionId}`);
-  } catch (error) {
-    console.log(error);
-    res.sendStatus(500);
+app.put(
+  "/answers/edit/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    console.log(req.body);
+    try {
+      const answer = await Answer.findByPk(req.params.id);
+      const question = await Question.findByPk(answer.questionId);
+      await Question.update(
+        {
+          correct: req.params.id,
+        },
+        {
+          where: { id: question.id },
+        }
+      );
+      res.redirect(`/questions/edit/${req.body.questionId}`);
+    } catch (error) {
+      console.log(error);
+      res.sendStatus(500);
+    }
   }
-});
+);
 
 //==================================================
 // delete requests
 
-app.delete("/questions/:id", async (req, res) => {
-  console.log(req.body);
-  try {
-    await Question.findByPk(req.params.id);
-    await Question.destroy({
-      where: { id: req.params.id },
-    });
-    res.sendStatus(200);
-  } catch (error) {
-    console.log(error);
-    res.sendStatus(500);
+app.delete(
+  "/questions/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    console.log(req.body);
+    try {
+      await Question.findByPk(req.params.id);
+      await Question.destroy({
+        where: { id: req.params.id },
+      });
+      res.sendStatus(200);
+    } catch (error) {
+      console.log(error);
+      res.sendStatus(500);
+    }
   }
-});
+);
 
-app.delete("/answers/:id", async (req, res) => {
-  console.log(req.body);
-  try {
-    await Answer.findByPk(req.params.id);
-    await Answer.destroy({
-      where: { id: req.params.id },
-    });
-    res.sendStatus(200);
-  } catch (error) {
-    console.log(error);
-    res.sendStatus(500);
+app.delete(
+  "/answers/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    console.log(req.body);
+    try {
+      await Answer.findByPk(req.params.id);
+      await Answer.destroy({
+        where: { id: req.params.id },
+      });
+      res.sendStatus(200);
+    } catch (error) {
+      console.log(error);
+      res.sendStatus(500);
+    }
   }
-});
+);
 
 //==================================================
 
