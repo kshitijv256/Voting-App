@@ -10,7 +10,7 @@ function extractCsrfToken(res) {
 }
 
 const login = async (agent, username, password) => {
-  let res = await agent.get("/");
+  let res = await agent.get("/login");
   let csrfToken = extractCsrfToken(res);
   res = await agent.post("/session").send({
     email: username,
@@ -65,15 +65,15 @@ describe("Voting App", function () {
     const agent = request.agent(server);
     await login(agent, "user1@test.com", "password");
     // console.log(request.user.id);
-    let res = await agent.get("/login");
+    const res = await agent.get("/login");
     // console.log(res);
     const csrfToken = extractCsrfToken(res);
-    res = await agent.post("/elections").send({
+    const response = await agent.post("/elections").send({
       title: "Test Election",
       description: "Test Description",
       _csrf: csrfToken,
     });
-    expect(res.statusCode).toEqual(302);
+    expect(response.statusCode).toBe(302);
   });
 
   test("Adding Question", async () => {
@@ -84,36 +84,42 @@ describe("Voting App", function () {
     res = await agent.post("/questions").send({
       title: "Test Question",
       description: "Test Description",
-      selected: null,
-      correct: null,
       electionId: 1,
       _csrf: csrfToken,
     });
     expect(res.statusCode).toBe(302);
+    const questions = await agent
+      .get("/elections/1")
+      .set("Accept", "application/json")
+      .then((response) => {
+        const parsedResponse = JSON.parse(response.text);
+        return parsedResponse.questions;
+      });
+    expect(questions.length).toBe(1);
   });
 
-  // test("Updating Question", async () => {
-  //   const agent = request.agent(server);
-  //   await login(agent, "user1@test.com", "password");
-  //   let res = await agent.get("/login");
-  //   const csrfToken = extractCsrfToken(res);
-  //   const id = 1;
-  //   res = await agent.post(`/questions/${id}`).send({
-  //     title: "Updated Question",
-  //     description: "Updated Description",
-  //     _csrf: csrfToken,
-  //   });
-  //   expect(res.statusCode).toEqual(302);
+  test("Updating Question", async () => {
+    const agent = request.agent(server);
+    await login(agent, "user1@test.com", "password");
+    let res = await agent.get("/login");
+    const csrfToken = extractCsrfToken(res);
+    const id = 1;
+    res = await agent.post(`/questions/${id}`).send({
+      title: "Updated Question",
+      description: "Updated Description",
+      _csrf: csrfToken,
+    });
+    expect(res.statusCode).toEqual(302);
 
-  //   const question = await agent
-  //     .get(`/questions/edit/${id}`)
-  //     .set("Accept", "application/json")
-  //     .then((response) => {
-  //       const parsedResponse = JSON.parse(response.text);
-  //       return parsedResponse.question;
-  //     });
-  //   const updatedQuestion = question;
-  //   expect(updatedQuestion.title).toEqual("Updated Question");
-  //   expect(updatedQuestion.description).toEqual("Updated Description");
-  // });
+    const questions = await agent
+      .get("/elections/1")
+      .set("Accept", "application/json")
+      .then((response) => {
+        const parsedResponse = JSON.parse(response.text);
+        return parsedResponse.questions;
+      });
+    const updatedQuestion = questions[0];
+    expect(updatedQuestion.title).toEqual("Updated Question");
+    expect(updatedQuestion.description).toEqual("Updated Description");
+  });
 });

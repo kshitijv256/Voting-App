@@ -24,14 +24,14 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 app.use(flash());
 
-app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.urlencoded({ extended: false }));
 
 app.use(cookieParser("some other secret string"));
 // ["POST", "PUT", "DELETE"]));
 app.use(csrf({ cookie: true }));
 
+app.use(express.static(path.join(__dirname, "public")));
 app.use(
   session({
     secret: "secret-key-that-no-one-can-guess",
@@ -123,7 +123,15 @@ app.get("/elections", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
   const admin = await Admin.findByPk(adminId);
   const name = admin.firstName + " " + admin.lastName;
   const elections = await Election.findAll();
-  res.render("elections", { elections, name, csrfToken: req.csrfToken() });
+  if (req.accepts("html")) {
+    res.render("elections", { elections, name, csrfToken: req.csrfToken() });
+  } else {
+    res.json({ elections });
+  }
+});
+
+app.get("/elections/add", connectEnsureLogin.ensureLoggedIn(), (req, res) => {
+  res.render("add_election", { csrfToken: req.csrfToken() });
 });
 
 app.get(
@@ -134,11 +142,15 @@ app.get(
     const questions = await Question.findAll({
       where: { electionId: req.params.id },
     });
-    res.render("ballot", {
-      election,
-      questions,
-      csrfToken: req.csrfToken(),
-    });
+    if (req.accepts("html")) {
+      res.render("ballot", {
+        election,
+        questions,
+        csrfToken: req.csrfToken(),
+      });
+    } else {
+      res.json({ election, questions });
+    }
   }
 );
 
@@ -162,13 +174,13 @@ app.get(
       where: { questionId: req.params.id },
     });
     if (req.accepts("html")) {
-      return res.render("edit_question", {
+      res.render("edit_question", {
         question,
         answers,
         csrfToken: req.csrfToken(),
       });
     } else {
-      return res.json({ question, answers });
+      res.json({ question, answers });
     }
   }
 );
@@ -210,13 +222,13 @@ app.post("/admins", async (req, res) => {
     req.login(user, (err) => {
       if (err) {
         console.log(err);
-        return res.sendStatus(500);
+        res.sendStatus(500);
       }
       res.redirect("/elections");
     });
   } catch (error) {
     console.log(error);
-    return res.redirect("/signup");
+    res.redirect("/signup");
   }
 });
 
@@ -252,10 +264,10 @@ app.post(
         correct: null,
         electionId: req.body.electionId,
       });
-      res.redirect(`/elections/${req.body.electionId}`);
+      return res.redirect(`/elections/${req.body.electionId}`);
     } catch (error) {
       console.log(error);
-      res.sendStatus(500);
+      return res.sendStatus(422).json(error);
     }
   }
 );
@@ -275,10 +287,10 @@ app.post(
           where: { id: req.params.id },
         }
       );
-      res.redirect(`/elections/${req.body.electionId}`);
+      return res.redirect(`/elections/${req.body.electionId}`);
     } catch (error) {
       console.log(error);
-      res.sendStatus(500);
+      return res.sendStatus(500);
     }
   }
 );
@@ -294,10 +306,10 @@ app.post(
         selected: req.body.selected,
         questionId: req.params.id,
       });
-      res.redirect(`/questions/edit/${req.params.id}`);
+      return res.redirect(`/questions/edit/${req.params.id}`);
     } catch (error) {
       console.log(error);
-      res.sendStatus(500);
+      return res.sendStatus(500);
     }
   }
 );
@@ -316,10 +328,10 @@ app.post(
           where: { id: req.params.id },
         }
       );
-      res.redirect(`/questions/edit/${req.body.questionId}`);
+      return res.redirect(`/questions/edit/${req.body.questionId}`);
     } catch (error) {
       console.log(error);
-      res.sendStatus(500);
+      return res.sendStatus(500);
     }
   }
 );
@@ -328,25 +340,24 @@ app.post(
 // put requests
 
 app.put(
-  "/answers/edit/:id",
+  "/answers/edit/:id/",
   connectEnsureLogin.ensureLoggedIn(),
   async (req, res) => {
     console.log(req.body);
     try {
       const answer = await Answer.findByPk(req.params.id);
-      const question = await Question.findByPk(answer.questionId);
-      await Question.update(
+      const updatedQuestion = await Question.update(
         {
           correct: req.params.id,
         },
         {
-          where: { id: question.id },
+          where: { id: answer.questionId },
         }
       );
-      res.redirect(`/questions/edit/${req.body.questionId}`);
+      return res.json(updatedQuestion);
     } catch (error) {
       console.log(error);
-      res.sendStatus(500);
+      return res.status(422).json(error);
     }
   }
 );
@@ -360,11 +371,10 @@ app.delete(
   async (req, res) => {
     console.log(req.body);
     try {
-      await Question.findByPk(req.params.id);
       await Question.destroy({
         where: { id: req.params.id },
       });
-      res.sendStatus(200);
+      return res.json({ success: true });
     } catch (error) {
       console.log(error);
       res.sendStatus(500);
@@ -378,11 +388,10 @@ app.delete(
   async (req, res) => {
     console.log(req.body);
     try {
-      await Answer.findByPk(req.params.id);
       await Answer.destroy({
         where: { id: req.params.id },
       });
-      res.sendStatus(200);
+      return res.json({ success: true });
     } catch (error) {
       console.log(error);
       res.sendStatus(500);
