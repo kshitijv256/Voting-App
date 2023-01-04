@@ -3,21 +3,36 @@
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="csrf-token" content="<%= csrfToken %>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
     <title>Add Answer</title>
   </head>
   <body>
-    <div class="p-5 bg-blue-400 font-sans text-2xl">
-      <span>
-        <h1>The app is running</h1>
-        <p class="text-green-200">
-          <a href="/questions/edit/<%= question.id %>">Back</a>
-        </p>
-      </span>
+    <div class="bg-blue-400 font-sans text-2xl">
+      <div class="flex flex-row justify-between pr-4">
+        <h1 class="w-3/5 p-5 text-white"><%= question.title %></h1>
+        <div class="flex flex-row justify-end">
+          <div class="bg-blue-400 hover:bg-blue-300 cursor-pointer flex items-center">
+            <a href="/questions/edit/<%= question.id %>" class="text-white px-2">
+              Back
+            </a>
+          </div>
+          <div class="bg-blue-400 hover:bg-blue-300 cursor-pointer flex items-center">
+            <a href="/elections" class="text-white px-2">
+              All Elections
+            </a>
+          </div>
+          <div class="bg-blue-400 hover:bg-blue-300 cursor-pointer flex items-center">
+            <a href="/logout" class="text-white px-2">
+              Logout
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="flex flex-row justify-center">
-      <div class="shadow-xl p-4 mt-4 rounded-md">
+      <div class="shadow-xl p-4 mt-4 rounded-md w-3/5">
         <h1 class="text-2xl font-bold mb-4">Add new answer</h1>
         <form action="/answers/<%= question.id %>" method="post">
           <div class="flex-auto">
@@ -30,12 +45,14 @@
             />
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
           </div>
-          <button
-            class="bg-blue-500 p-2 rounded m-2 hover:bg-blue-600"
-            type="submit"
-          >
-            Add
-          </button>
+          <div class="flex flex-row justify-end w-full">
+            <button
+              class="bg-blue-400 p-2 rounded m-2 hover:bg-blue-500 text-white"
+              type="submit"
+            >
+              Add
+            </button>
+          </div>
         </form>
       </div>
     </div>
