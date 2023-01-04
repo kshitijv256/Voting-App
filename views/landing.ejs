@@ -8,12 +8,22 @@
     <title>Voting App</title>
 </head>
 <body>
-    <div class="p-5 bg-blue-400 font-sans text-2xl">
-        <span>
-          <h1>The app is running</h1>
-            <p class="text-green-200"><a href="/login">Already a member</a></p>
-            <p class="text-green-200"><a href="/signup">Create account</a></p>
-      </span>
+    <div class="bg-blue-400 font-sans text-2xl">
+      <div class="flex flex-row justify-between pr-4">
+        <h1 class="w-3/5 p-5 text-white">The Voting App</h1>
+        <div class="flex flex-row justify-end">
+          <div class="bg-blue-400 hover:bg-blue-300 cursor-pointer flex items-center">
+            <a href="/signup" class="text-white px-2">
+              Sign up
+            </a>
+          </div>
+          <div class="bg-blue-400 hover:bg-blue-300 cursor-pointer flex items-center">
+            <a href="/login" class="text-white px-2">
+              Login
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
     
 </body>

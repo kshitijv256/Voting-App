@@ -11,9 +11,13 @@
   </head>
 
   <body>
+    <div class="bg-blue-400 font-sans text-2xl">
+      <div class="flex flex-row justify-between pr-4">
+        <h1 class="w-3/5 p-5 text-white">New here, Sign-up</h1>
+      </div>
+    </div>
     <div class="grid grid-cols-6 p-3 gap-2">
       <div class="col-start-3 col-span-2">
-        <h6 class="py-4">Signup as a new user</h6>
         <form action="/admins" method="post">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
           <div class="py-3">
