@@ -7,10 +7,20 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate(models) {
-      Question.belongsTo(models.Election, { foreignKey: "electionId" });
 
-      Question.hasMany(models.Answer, { foreignKey: "questionId" });
+    static associate(models) {
+      Question.hasMany(models.Answer, {
+        foreignKey: "questionId",
+        onDelete: "cascade",
+        onUpdate: "cascade",
+        hooks: true,
+      });
+      Question.belongsTo(models.Election, {
+        foreignKey: "electionId",
+        onDelete: "cascade",
+        onUpdate: "cascade",
+        hooks: true,
+      });
     }
   }
   Question.init(
@@ -23,6 +33,13 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Question",
+      hooks: {
+        beforeDestroy: async (question, options) => {
+          await sequelize.models.Answer.destroy({
+            where: { questionId: question.id },
+          });
+        },
+      },
     }
   );
   return Question;

@@ -7,7 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      let token = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+      let token = document
+        .querySelector('meta[name="csrf-token"]')
+        .getAttribute("content");
       function selectCorrect(id) {
         fetch(`/answers/edit/${id}`, {
           method: "put",
@@ -15,8 +17,8 @@
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-          _csrf: token
-        }),
+            _csrf: token,
+          }),
         })
           .then((res) => {
             if (res.ok) {
@@ -34,8 +36,8 @@
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-          _csrf: token
-        }),
+            _csrf: token,
+          }),
         })
           .then((res) => {
             if (res.ok) {

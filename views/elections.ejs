@@ -3,8 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="csrf-token" content="<%= csrfToken %>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      let token = document
+        .querySelector('meta[name="csrf-token"]')
+        .getAttribute("content");
+      function deleteElection(id) {
+        fetch(`/elections/${id}`, {
+          method: "delete",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            _csrf: token,
+          }),
+        })
+          .then((res) => {
+            if (res.ok) {
+              window.location.reload();
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+    </script>
     <title>All Elections</title>
   </head>
   <body>
@@ -14,16 +39,29 @@
         <p class="text-green-200"><a href="/">Home page</a></p>
       </span>
     </div>
+    <div class="flex flex-row justify-start">
+      <div class="rounded bg-blue-500 hover:bg-blue-600 p-2 m-2">
+        <a href="/elections/add">Add Election</a>
+      </div>
+    </div>
     <div class="flex flex-col items-center">
       <% for(var i = 0; i < elections.length; i++) { %>
       <div class="w-4/5 shadow-xl p-4 mt-4 rounded-md">
         <h1 class="text-2xl font-bold mb-4"><%= elections[i].title %></h1>
-        <p class="text-lg text-gray-600 mb-4"><%= elections[i].description %></p>
+        <p class="text-lg text-gray-600 mb-4">
+          <%= elections[i].description %>
+        </p>
         <p class="text-lg text-gray-600 mb-4">5 questions || 10 voters</p>
         <a
           href="/elections/<%= elections[i].id %>"
           class="bg-blue-500 p-2 rounded m-2 hover:bg-blue-600"
           >View details</a
+        >
+        <a
+          href="#"
+          onclick="deleteElection(`<%= elections[i].id %>`)"
+          class="bg-red-500 p-2 rounded m-2 hover:bg-red-600"
+          >Delete</a
         >
       </div>
       <% } %>

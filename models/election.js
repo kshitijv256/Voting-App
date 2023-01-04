@@ -8,7 +8,18 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Election.hasMany(models.Question, { foreignKey: "electionId" });
+      Election.hasMany(models.Question, {
+        foreignKey: "electionId",
+        onDelete: "cascade",
+        onUpdate: "cascade",
+        hooks: true,
+      });
+      Election.belongsTo(models.Admin, {
+        foreignKey: "adminId",
+        onDelete: "cascade",
+        onUpdate: "cascade",
+        hooks: true,
+      });
     }
   }
   Election.init(
@@ -19,6 +30,13 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Election",
+      hooks: {
+        beforeDestroy: async (election, options) => {
+          await sequelize.models.Question.destroy({
+            where: { electionId: election.id },
+          });
+        },
+      },
     }
   );
   return Election;

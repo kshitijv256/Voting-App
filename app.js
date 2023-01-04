@@ -131,7 +131,10 @@ app.get("/elections", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
 });
 
 app.get("/elections/add", connectEnsureLogin.ensureLoggedIn(), (req, res) => {
-  res.render("add_election", { csrfToken: req.csrfToken() });
+  res.render("add_elections", {
+    adminId: req.user.id,
+    csrfToken: req.csrfToken(),
+  });
 });
 
 app.get(
@@ -172,6 +175,7 @@ app.get(
     const question = await Question.findByPk(req.params.id);
     const answers = await Answer.findAll({
       where: { questionId: req.params.id },
+      order: [["id", "ASC"]],
     });
     if (req.accepts("html")) {
       res.render("edit_question", {
@@ -364,6 +368,23 @@ app.put(
 
 //==================================================
 // delete requests
+
+app.delete(
+  "/elections/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    console.log(req.body);
+    try {
+      await Election.destroy({
+        where: { id: req.params.id },
+      });
+      return res.json({ success: true });
+    } catch (error) {
+      console.log(error);
+      res.sendStatus(500);
+    }
+  }
+);
 
 app.delete(
   "/questions/:id",
