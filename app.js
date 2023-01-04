@@ -122,7 +122,12 @@ app.get("/elections", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
   const adminId = req.user.id;
   const admin = await Admin.findByPk(adminId);
   const name = admin.firstName + " " + admin.lastName;
-  const elections = await Election.findAll();
+  const elections = await Election.findAll(
+    {
+      where: { adminId: adminId },
+    },
+    { order: [["id", "ASC"]] }
+  );
   if (req.accepts("html")) {
     res.render("elections", { elections, name, csrfToken: req.csrfToken() });
   } else {
