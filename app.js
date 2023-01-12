@@ -11,7 +11,7 @@ const connectEnsureLogin = require("connect-ensure-login");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const flash = require("connect-flash");
-const { Election, Question, Answer, Admin } = require("./models");
+const { Election, Question, Answer, Admin, Voter } = require("./models");
 const path = require("path");
 const bodyParser = require("body-parser");
 const app = express();
@@ -152,14 +152,18 @@ app.get(
     const questions = await Question.findAll({
       where: { electionId: req.params.id },
     });
+    const voters = await Voter.findAll({
+      where: { electionId: req.params.id },
+    });
     if (req.accepts("html")) {
       res.render("ballot", {
         election,
         questions,
+        voters,
         csrfToken: req.csrfToken(),
       });
     } else {
-      res.json({ election, questions });
+      res.json({ election, questions, voters });
     }
   }
 );
@@ -202,6 +206,17 @@ app.get(
   async (req, res) => {
     const question = await Question.findByPk(req.params.id);
     res.render("add_answer", { question, csrfToken: req.csrfToken() });
+  }
+);
+
+app.get(
+  "/voters/add/:electionId",
+  connectEnsureLogin.ensureLoggedIn(),
+  (req, res) => {
+    res.render("add_voter", {
+      electionId: req.params.electionId,
+      csrfToken: req.csrfToken(),
+    });
   }
 );
 
@@ -306,7 +321,7 @@ app.post(
 );
 
 app.post(
-  "/answers/:electionId",
+  "/answers/:questionId",
   connectEnsureLogin.ensureLoggedIn(),
   async (req, res) => {
     console.log(req.body);
@@ -314,9 +329,9 @@ app.post(
       await Answer.create({
         body: req.body.body,
         votes: 0,
-        questionId: req.params.electionId,
+        questionId: req.params.questionId,
       });
-      return res.redirect(`/questions/edit/${req.params.electionId}`);
+      return res.redirect(`/questions/edit/${req.params.questionId}`);
     } catch (error) {
       console.log(error);
       return res.sendStatus(500);
@@ -345,6 +360,22 @@ app.post(
     }
   }
 );
+
+app.post("/voters", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
+  console.log(req.body);
+  try {
+    await Voter.create({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      voterID: req.body.voterID,
+      electionId: req.body.electionId,
+    });
+    return res.redirect(`/elections/${req.body.electionId}`);
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(500);
+  }
+});
 
 //==================================================
 // put requests

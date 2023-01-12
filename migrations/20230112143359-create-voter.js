@@ -10,16 +10,23 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       firstName: {
+        allowNull: false,
         type: Sequelize.STRING,
       },
       lastName: {
         type: Sequelize.STRING,
       },
       voterID: {
+        allowNull: false,
         type: Sequelize.STRING,
       },
       password: {
+        allowNull: false,
         type: Sequelize.STRING,
+      },
+      voted: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
       },
       createdAt: {
         allowNull: false,
