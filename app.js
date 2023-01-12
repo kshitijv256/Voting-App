@@ -267,7 +267,7 @@ app.post(
       await Election.create({
         title: req.body.title,
         description: req.body.description,
-        active: false,
+        status: "new",
         adminId: req.user.id,
       });
       res.redirect("/elections");

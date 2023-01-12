@@ -15,8 +15,9 @@ module.exports = {
       description: {
         type: Sequelize.STRING,
       },
-      active: {
-        type: Sequelize.BOOLEAN,
+      state: {
+        type: Sequelize.STRING,
+        defaultValue: "new",
       },
       createdAt: {
         allowNull: false,
