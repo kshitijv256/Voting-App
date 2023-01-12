@@ -36,6 +36,8 @@ app.use(
   session({
     secret: "secret-key-that-no-one-can-guess",
     cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 24 hours
+    resave: false,
+    saveUninitialized: false,
   })
 );
 
@@ -250,6 +252,7 @@ app.post(
       await Election.create({
         title: req.body.title,
         description: req.body.description,
+        active: false,
         adminId: req.user.id,
       });
       res.redirect("/elections");
@@ -269,8 +272,6 @@ app.post(
       await Question.create({
         title: req.body.title,
         description: req.body.description,
-        selected: null,
-        correct: null,
         electionId: req.body.electionId,
       });
       return res.redirect(`/elections/${req.body.electionId}`);
@@ -305,17 +306,17 @@ app.post(
 );
 
 app.post(
-  "/answers/:id",
+  "/answers/:electionId",
   connectEnsureLogin.ensureLoggedIn(),
   async (req, res) => {
     console.log(req.body);
     try {
       await Answer.create({
         body: req.body.body,
-        selected: req.body.selected,
-        questionId: req.params.id,
+        votes: 0,
+        questionId: req.params.electionId,
       });
-      return res.redirect(`/questions/edit/${req.params.id}`);
+      return res.redirect(`/questions/edit/${req.params.electionId}`);
     } catch (error) {
       console.log(error);
       return res.sendStatus(500);
@@ -348,28 +349,28 @@ app.post(
 //==================================================
 // put requests
 
-app.put(
-  "/answers/edit/:id/",
-  connectEnsureLogin.ensureLoggedIn(),
-  async (req, res) => {
-    console.log(req.body);
-    try {
-      const answer = await Answer.findByPk(req.params.id);
-      const updatedQuestion = await Question.update(
-        {
-          correct: req.params.id,
-        },
-        {
-          where: { id: answer.questionId },
-        }
-      );
-      return res.json(updatedQuestion);
-    } catch (error) {
-      console.log(error);
-      return res.status(422).json(error);
-    }
-  }
-);
+// app.put(
+//   "/answers/edit/:id/",
+//   connectEnsureLogin.ensureLoggedIn(),
+//   async (req, res) => {
+//     console.log(req.body);
+//     try {
+//       const answer = await Answer.findByPk(req.params.id);
+//       const updatedQuestion = await Question.update(
+//         {
+//           correct: req.params.id,
+//         },
+//         {
+//           where: { id: answer.questionId },
+//         }
+//       );
+//       return res.json(updatedQuestion);
+//     } catch (error) {
+//       console.log(error);
+//       return res.status(422).json(error);
+//     }
+//   }
+// );
 
 //==================================================
 // delete requests
@@ -431,8 +432,14 @@ module.exports = app;
 
 //==================================================
 
-//Add delete option for questions
+//Add delete option for questions X
 
-// Add delete option for answers
+// Add delete option for answers X
 
 // add correct answer option for questions X
+
+// add delete option for elections X
+
+// add voters table
+
+// add voters to elections

@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
   Answer.init(
     {
       body: DataTypes.STRING,
-      selected: DataTypes.BOOLEAN,
+      votes: DataTypes.INTEGER,
     },
     {
       sequelize,

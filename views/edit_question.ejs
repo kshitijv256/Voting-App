@@ -10,25 +10,6 @@
       let token = document
         .querySelector('meta[name="csrf-token"]')
         .getAttribute("content");
-      function selectCorrect(id) {
-        fetch(`/answers/edit/${id}`, {
-          method: "put",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            _csrf: token,
-          }),
-        })
-          .then((res) => {
-            if (res.ok) {
-              window.location.reload();
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      }
       function deleteAnswer(id) {
         fetch(`/answers/${id}`, {
           method: "delete",
@@ -147,17 +128,6 @@
               >
                 Save
               </button>
-              <a
-                href="#"
-                onclick="selectCorrect(`<%= answers[i].id %>`)"
-                class="pl-2"
-              >
-                <div
-                  class="flex-auto bg-green-400 rounded px-1 py-2 hover:bg-green-500 text-white hover:cursor-pointer"
-                >
-                  Correct
-                </div>
-              </a>
               <a
                 href="#"
                 onclick="deleteAnswer('<%= answers[i].id %>')"
