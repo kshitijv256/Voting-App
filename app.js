@@ -11,7 +11,7 @@ const connectEnsureLogin = require("connect-ensure-login");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const flash = require("connect-flash");
-const { Election, Question, Answer, Admin } = require("./models");
+const { Election, Question, Answer, Admin, Voter } = require("./models");
 const path = require("path");
 const bodyParser = require("body-parser");
 const app = express();
@@ -36,6 +36,8 @@ app.use(
   session({
     secret: "secret-key-that-no-one-can-guess",
     cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 24 hours
+    resave: false,
+    saveUninitialized: false,
   })
 );
 
@@ -150,14 +152,18 @@ app.get(
     const questions = await Question.findAll({
       where: { electionId: req.params.id },
     });
+    const voters = await Voter.findAll({
+      where: { electionId: req.params.id },
+    });
     if (req.accepts("html")) {
       res.render("ballot", {
         election,
         questions,
+        voters,
         csrfToken: req.csrfToken(),
       });
     } else {
-      res.json({ election, questions });
+      res.json({ election, questions, voters });
     }
   }
 );
@@ -200,6 +206,17 @@ app.get(
   async (req, res) => {
     const question = await Question.findByPk(req.params.id);
     res.render("add_answer", { question, csrfToken: req.csrfToken() });
+  }
+);
+
+app.get(
+  "/voters/add/:electionId",
+  connectEnsureLogin.ensureLoggedIn(),
+  (req, res) => {
+    res.render("add_voter", {
+      electionId: req.params.electionId,
+      csrfToken: req.csrfToken(),
+    });
   }
 );
 
@@ -250,6 +267,7 @@ app.post(
       await Election.create({
         title: req.body.title,
         description: req.body.description,
+        active: false,
         adminId: req.user.id,
       });
       res.redirect("/elections");
@@ -269,8 +287,6 @@ app.post(
       await Question.create({
         title: req.body.title,
         description: req.body.description,
-        selected: null,
-        correct: null,
         electionId: req.body.electionId,
       });
       return res.redirect(`/elections/${req.body.electionId}`);
@@ -305,17 +321,17 @@ app.post(
 );
 
 app.post(
-  "/answers/:id",
+  "/answers/:questionId",
   connectEnsureLogin.ensureLoggedIn(),
   async (req, res) => {
     console.log(req.body);
     try {
       await Answer.create({
         body: req.body.body,
-        selected: req.body.selected,
-        questionId: req.params.id,
+        votes: 0,
+        questionId: req.params.questionId,
       });
-      return res.redirect(`/questions/edit/${req.params.id}`);
+      return res.redirect(`/questions/edit/${req.params.questionId}`);
     } catch (error) {
       console.log(error);
       return res.sendStatus(500);
@@ -345,31 +361,47 @@ app.post(
   }
 );
 
+app.post("/voters", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
+  console.log(req.body);
+  try {
+    await Voter.create({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      voterID: req.body.voterID,
+      electionId: req.body.electionId,
+    });
+    return res.redirect(`/elections/${req.body.electionId}`);
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(500);
+  }
+});
+
 //==================================================
 // put requests
 
-app.put(
-  "/answers/edit/:id/",
-  connectEnsureLogin.ensureLoggedIn(),
-  async (req, res) => {
-    console.log(req.body);
-    try {
-      const answer = await Answer.findByPk(req.params.id);
-      const updatedQuestion = await Question.update(
-        {
-          correct: req.params.id,
-        },
-        {
-          where: { id: answer.questionId },
-        }
-      );
-      return res.json(updatedQuestion);
-    } catch (error) {
-      console.log(error);
-      return res.status(422).json(error);
-    }
-  }
-);
+// app.put(
+//   "/answers/edit/:id/",
+//   connectEnsureLogin.ensureLoggedIn(),
+//   async (req, res) => {
+//     console.log(req.body);
+//     try {
+//       const answer = await Answer.findByPk(req.params.id);
+//       const updatedQuestion = await Question.update(
+//         {
+//           correct: req.params.id,
+//         },
+//         {
+//           where: { id: answer.questionId },
+//         }
+//       );
+//       return res.json(updatedQuestion);
+//     } catch (error) {
+//       console.log(error);
+//       return res.status(422).json(error);
+//     }
+//   }
+// );
 
 //==================================================
 // delete requests
@@ -431,8 +463,14 @@ module.exports = app;
 
 //==================================================
 
-//Add delete option for questions
+//Add delete option for questions X
 
-// Add delete option for answers
+// Add delete option for answers X
 
 // add correct answer option for questions X
+
+// add delete option for elections X
+
+// add voters table
+
+// add voters to elections

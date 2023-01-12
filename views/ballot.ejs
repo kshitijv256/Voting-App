@@ -52,31 +52,50 @@
       <a
         href="/questions/add/<%= election.id %>"
         class="bg-blue-400 p-2 rounded mt-4 mr-4 hover:bg-blue-500 text-white"
-        >+Add</a
+        >+Add Question</a
+      >
+      <a
+        href="/voters/add/<%= election.id %>"
+        class="bg-blue-400 p-2 rounded mt-4 mr-4 hover:bg-blue-500 text-white"
+        >+Add Voter</a
       >
     </div>
-    <div class="flex flex-col items-center">
-      <% for(var i = 0; i < questions.length; i++) { %>
-      <div class="w-4/5 shadow-xl p-4 mt-4 rounded-md">
-        <h1 class="text-2xl font-bold mb-4"><%= questions[i].title %></h1>
-        <p class="text-lg text-gray-600 mb-4">
-          <%= questions[i].description %>
-        </p>
-        <!-- <p class="text-lg text-gray-600 mb-4">~To add answers~</p> -->
-        <a
-          href="/questions/edit/<%= questions[i].id %>"
-          class="bg-blue-400 p-2 rounded m-2 hover:bg-blue-500 cursor-pointer text-white"
-          >Edit</a
-        >
-        <a
-          href="#"
-          onclick="deleteQuestion('<%= questions[i].id %>')"
-          class="bg-red-400 rounded px-1 py-2 hover:bg-red-500 cursor-pointer text-white"
-        >
-          Delete
-        </a>
+    <div class="flex flex-row w-full">
+      <div class="flex flex-col items-center w-full">
+        <h2 class="text-3xl font-bold mb-4">Questions</h2>
+        <% for(var i = 0; i < questions.length; i++) { %>
+        <div class="w-4/5 shadow-xl p-4 mt-4 rounded-md">
+          <h1 class="text-2xl font-bold mb-4"><%= questions[i].title %></h1>
+          <p class="text-lg text-gray-600 mb-4">
+            <%= questions[i].description %>
+          </p>
+          <!-- <p class="text-lg text-gray-600 mb-4">~To add answers~</p> -->
+          <a
+            href="/questions/edit/<%= questions[i].id %>"
+            class="bg-blue-400 p-2 rounded m-2 hover:bg-blue-500 cursor-pointer text-white"
+            >Edit</a
+          >
+          <a
+            href="#"
+            onclick="deleteQuestion('<%= questions[i].id %>')"
+            class="bg-red-400 rounded px-1 py-2 hover:bg-red-500 cursor-pointer text-white"
+          >
+            Delete
+          </a>
+        </div>
+        <% } %>
       </div>
-      <% } %>
+      <div class="flex flex-col w-1/5">
+        <h2 class="text-3xl font-bold mb-4">Voters</h2>
+        <% for(var i = 0; i < voters.length; i++) { %>
+          <div class="w-4/5 shadow-xl p-4 mt-4 rounded-md">
+            <h1 class="text-2xl font-bold mb-4"><%= voters[i].firstName + " " + voters[i].lastName %></h1>
+            <p class="text-lg text-gray-600 mb-4">
+              <%= voters[i].voterID %>
+            </p>
+          </div>
+        <% } %>
+      </div>
     </div>
   </body>
 </html>
