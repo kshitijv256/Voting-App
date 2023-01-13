@@ -15,6 +15,9 @@ module.exports = {
       description: {
         type: Sequelize.STRING,
       },
+      customURL: {
+        type: Sequelize.STRING,
+      },
       state: {
         type: Sequelize.STRING,
         defaultValue: "new",

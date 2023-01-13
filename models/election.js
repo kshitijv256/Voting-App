@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       title: DataTypes.STRING,
       description: DataTypes.STRING,
+      customURL: DataTypes.STRING,
       state: DataTypes.STRING,
     },
     {

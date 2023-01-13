@@ -91,6 +91,48 @@ app.use(function (request, response, next) {
   next();
 });
 
+async function authencticateVoter(voterID, password) {
+  return await Voter.findOne({
+    where: {
+      voterID: voterID,
+    },
+  })
+    .then(async (user) => {
+      const result = password == user.password;
+      if (result) {
+        return user;
+      } else {
+        return false;
+      }
+    })
+    .catch(() => {
+      return false;
+    });
+}
+
+async function verifyVoter(voterID, password, electionName) {
+  const voter = await authencticateVoter(voterID, password);
+  if (!voter) {
+    return false;
+  }
+  return Election.findOne({
+    where: {
+      id: electionName,
+    },
+  })
+    .then(async (election) => {
+      const result = election.id == voter.electionId;
+      if (result) {
+        return true;
+      } else {
+        return false;
+      }
+    })
+    .catch(() => {
+      return false;
+    });
+}
+
 //==================================================
 
 // get requests
@@ -219,6 +261,13 @@ app.get(
     });
   }
 );
+
+app.get("/e/:customURL", (req, res) => {
+  res.render("voter_login", {
+    electionName: req.params.customURL,
+    csrfToken: req.csrfToken(),
+  });
+});
 
 //==================================================
 
@@ -367,10 +416,39 @@ app.post("/voters", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
     await Voter.create({
       firstName: req.body.firstName,
       lastName: req.body.lastName,
+      password: req.body.password,
       voterID: req.body.voterID,
       electionId: req.body.electionId,
     });
     return res.redirect(`/elections/${req.body.electionId}`);
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(500);
+  }
+});
+
+app.post("/elections/start", async (req, res) => {
+  console.log(req.body);
+  try {
+    const result = await verifyVoter(
+      req.body.voterID,
+      req.body.password,
+      req.body.electionName
+    );
+    if (result) {
+      const election = await Election.findOne({
+        where: { id: req.body.electionName },
+        include: [
+          {
+            model: Question,
+            include: [Answer],
+          },
+        ],
+      });
+      return res.render("myElection", { election, csrfToken: req.csrfToken() });
+    } else {
+      return res.redirect(`/e/${req.body.electionName}`);
+    }
   } catch (error) {
     console.log(error);
     return res.sendStatus(500);
