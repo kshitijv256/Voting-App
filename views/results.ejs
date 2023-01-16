@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="csrf-token" content="<%= csrfToken %>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1><%= election.title %></h1>
+    <h2><%= election.description %></h2>
+    <% for (let i = 0; i < election.Questions.length; i++) { %>
+    <h3><%= election.Questions[i].title %></h3>
+    <h4><%= election.Questions[i].description %></h4>
+      <% for (let j = 0; j < election.Questions[i].Answers.length; j++) { %>
+        <p>
+          <%= election.Questions[i].Answers[j].body %>
+          <%= election.Questions[i].Answers[j].votes %>
+        </p>
+      <% } %>
+    <% } %>
+  </body>
+</html>

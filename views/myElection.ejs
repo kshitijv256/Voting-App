@@ -1,13 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="csrf-token" content="<%= csrfToken %>" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-</head>
-<body>
-    <%= election %>
-</body>
+  </head>
+  <body>
+    <h1><%= election.title %></h1>
+    <h2><%= election.description %></h2>
+    <form action="/elections/<%= election.id %>/answers" method="POST">
+      <% for (let i = 0; i < election.Questions.length; i++) { %>
+      <h3><%= election.Questions[i].title %></h3>
+      <h4><%= election.Questions[i].description %></h4>
+      <fieldset name="q<%= i %>">
+        <% for (let j = 0; j < election.Questions[i].Answers.length; j++) { %>
+        <input
+          type="radio"
+          required
+          name="q<%= i %>"
+          value="<%= election.Questions[i].Answers[j].id %>"
+        />
+        <label for="<%= election.Questions[i].Answers[j].id %>">
+          <%= election.Questions[i].Answers[j].body %>
+        </label>
+        <% } %>
+      </fieldset>
+      <% } %>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <input type="submit" value="Submit Choices" />
+    </form>
+  </body>
 </html>

@@ -15,6 +15,7 @@ const { Election, Question, Answer, Admin, Voter } = require("./models");
 const path = require("path");
 const bodyParser = require("body-parser");
 const app = express();
+const Sequelize = require("sequelize");
 
 //==================================================
 
@@ -262,11 +263,35 @@ app.get(
   }
 );
 
-app.get("/e/:customURL", (req, res) => {
-  res.render("voter_login", {
-    electionName: req.params.customURL,
-    csrfToken: req.csrfToken(),
+app.get("/e/:customURL", async (req, res) => {
+  const election = await Election.findOne({
+    where: { id: req.params.customURL },
+    include: [
+      {
+        model: Question,
+        include: [Answer],
+      },
+    ],
+    order: [[Question, Answer, "id", "ASC"]],
   });
+
+  if (election.state == "running") {
+    res.render("voter_login", {
+      electionName: req.params.customURL,
+      csrfToken: req.csrfToken(),
+    });
+  } else if (election.state == "new") {
+    res.render("closed", {
+      electionName: req.params.customURL,
+      csrfToken: req.csrfToken(),
+    });
+  } else {
+    res.render("results", {
+      election: election,
+      electionName: req.params.customURL,
+      csrfToken: req.csrfToken(),
+    });
+  }
 });
 
 //==================================================
@@ -444,11 +469,54 @@ app.post("/elections/start", async (req, res) => {
             include: [Answer],
           },
         ],
+        order: [[Question, Answer, "id", "ASC"]],
       });
       return res.render("myElection", { election, csrfToken: req.csrfToken() });
     } else {
       return res.redirect(`/e/${req.body.electionName}`);
     }
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(500);
+  }
+});
+
+app.post("/elections/:id/answers", async (req, res) => {
+  console.log(req.body);
+  try {
+    let election = await Election.findOne({
+      where: { id: req.params.id },
+      include: [
+        {
+          model: Question,
+          include: [Answer],
+        },
+      ],
+      order: [[Question, Answer, "id", "ASC"]],
+    });
+    const questions = election.Questions;
+    for (let i = 0; i < questions.length; i++) {
+      const id = `q${i}`;
+      await Answer.update(
+        {
+          votes: Sequelize.literal("votes + 1"),
+        },
+        {
+          where: { id: req.body[id] },
+        }
+      );
+    }
+    election = await Election.findOne({
+      where: { id: req.params.id },
+      include: [
+        {
+          model: Question,
+          include: [Answer],
+        },
+      ],
+      order: [[Question, Answer, "id", "ASC"]],
+    });
+    return res.render("results", { election, csrfToken: req.csrfToken() });
   } catch (error) {
     console.log(error);
     return res.sendStatus(500);
