@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="csrf-token" content="<%= csrfToken %>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Launch</title>
+  </head>
+  <body>
+    <div class="bg-blue-400 font-sans text-2xl">
+      <div class="flex flex-row justify-between pr-4">
+        <h1 class="w-3/5 p-5 text-white"><%= election.title %></h1>
+        <div class="flex flex-row justify-end">
+          <div
+            class="bg-blue-400 hover:bg-blue-300 cursor-pointer flex items-center"
+          >
+            <a href="/elections" class="text-white px-2"> All Elections </a>
+          </div>
+          <div
+            class="bg-blue-400 hover:bg-blue-300 cursor-pointer flex items-center"
+          >
+            <a href="/logout" class="text-white px-2"> Logout </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="flex flex-row w-full">
+      <div class="flex flex-col items-center w-full">
+        <h2 class="text-3xl font-bold mb-4">Questions</h2>
+        <div class="flex flex-col w-4/5 shadow-xl p-4 mt-4 rounded-md">
+          <% for (let i = 0; i < election.Questions.length; i++) { %>
+          <h1 class="text-2xl font-bold mb-4">
+            Q<%= i+1 %> : <%= election.Questions[i].title %>
+          </h1>
+          <p class="text-lg text-gray-600 mb-4">
+            <%= election.Questions[i].description %>
+          </p>
+          <% for (let j = 0; j < election.Questions[i].Answers.length; j++) { %>
+          <h2 class="text-xl semi-bold mb-4">
+            option <%= j+1 %> : <%= election.Questions[i].Answers[j].body %>
+          </h2>
+          <% } %>
+          <% } %>
+          <a
+            href="/elections/launch/<%= election.id %>"
+            class="bg-blue-400 p-2 rounded m-2 hover:bg-blue-500 cursor-pointer text-white self-end"
+            >Launch
+          </a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

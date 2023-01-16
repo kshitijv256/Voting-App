@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="csrf-token" content="<%= csrfToken %>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Election</title>
   </head>
   <body>
     <h1><%= election.title %></h1>
@@ -29,6 +29,7 @@
       </fieldset>
       <% } %>
       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <input type="hidden" name="voterId" value="<%= voter.id %>" />
       <input type="submit" value="Submit Choices" />
     </form>
   </body>

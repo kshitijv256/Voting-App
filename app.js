@@ -294,6 +294,26 @@ app.get("/e/:customURL", async (req, res) => {
   }
 });
 
+app.get(
+  "/election/launch/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    const election = await Election.findByPk(req.params.id, {
+      include: [
+        {
+          model: Question,
+          include: [Answer],
+        },
+      ],
+      order: [[Question, Answer, "id", "ASC"]],
+    });
+    res.render("launch_election", {
+      election: election,
+      csrfToken: req.csrfToken(),
+    });
+  }
+);
+
 //==================================================
 
 // post requests
@@ -471,7 +491,18 @@ app.post("/elections/start", async (req, res) => {
         ],
         order: [[Question, Answer, "id", "ASC"]],
       });
-      return res.render("myElection", { election, csrfToken: req.csrfToken() });
+      const voter = await Voter.findOne({
+        where: { voterID: req.body.voterID },
+      });
+      if (!voter.voted) {
+        return res.render("myElection", {
+          election,
+          voter,
+          csrfToken: req.csrfToken(),
+        });
+      } else {
+        return res.render("voted", { csrfToken: req.csrfToken() });
+      }
     } else {
       return res.redirect(`/e/${req.body.electionName}`);
     }
@@ -506,6 +537,15 @@ app.post("/elections/:id/answers", async (req, res) => {
         }
       );
     }
+    await Voter.update(
+      {
+        voted: true,
+      },
+      {
+        where: { id: req.body.voterId },
+      }
+    );
+
     election = await Election.findOne({
       where: { id: req.params.id },
       include: [
