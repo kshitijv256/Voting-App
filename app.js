@@ -657,6 +657,12 @@ module.exports = app;
 
 // add delete option for elections X
 
-// add voters table
+// add voters table X
 
-// add voters to elections
+// add voters to elections X
+
+// add validations
+
+// add flash messages
+
+// add styling to all pages
