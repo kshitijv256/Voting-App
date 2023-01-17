@@ -197,12 +197,14 @@ describe("Voting App", function () {
     const agent = request.agent(server);
     await login(agent, "user1@test.com", "password");
     let res = await agent.get("/login");
-    const csrfToken = extractCsrfToken(res);
-    res = await agent.post("/elections").send({
+    let csrfToken = extractCsrfToken(res);
+    await agent.post("/elections").send({
       title: "Test Election",
       description: "Test Description",
       _csrf: csrfToken,
     });
+    res = await agent.get("/login");
+    csrfToken = extractCsrfToken(res);
     res = await agent.post("/voters").send({
       firstName: "Test",
       lastName: "Voter",

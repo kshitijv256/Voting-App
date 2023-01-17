@@ -2,7 +2,7 @@
 // imports
 
 const express = require("express");
-const csrf = require("csurf"); // using csrf
+const csrf = require("tiny-csrf"); // using csrf
 const cookieParser = require("cookie-parser");
 const passport = require("passport"); // using passport
 const LocalStrategy = require("passport-local"); // using passport-local as strategy
@@ -30,7 +30,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(cookieParser("some other secret string"));
 // ["POST", "PUT", "DELETE"]));
-app.use(csrf({ cookie: true }));
+app.use(csrf("32_characterslomgstringis_enough", ["POST", "PUT", "DELETE"]));
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(
