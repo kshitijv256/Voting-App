@@ -107,6 +107,7 @@ describe("Voting App", function () {
     res = await agent.post(`/questions/${id}`).send({
       title: "Updated Question",
       description: "Updated Description",
+      electionId: 1,
       _csrf: csrfToken,
     });
     expect(res.statusCode).toEqual(302);
@@ -143,6 +144,7 @@ describe("Voting App", function () {
     const csrfToken = extractCsrfToken(res);
     res = await agent.post("/answers/edit/1").send({
       body: "Updated Option",
+      questionId: 1,
       _csrf: csrfToken,
     });
     expect(res.statusCode).toBe(302);
@@ -209,6 +211,7 @@ describe("Voting App", function () {
       firstName: "Test",
       lastName: "Voter",
       voterID: "123456789",
+      password: "password",
       _csrf: csrfToken,
       electionId: 2,
     });
