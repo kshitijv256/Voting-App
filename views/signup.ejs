@@ -25,6 +25,7 @@
             <input
               name="firstName"
               type="text"
+              required
               class="rounded border-2 border-gray-500 p-2 w-full text-gray-900"
             />
           </div>
@@ -41,6 +42,7 @@
             <input
               name="email"
               type="email"
+              required
               class="rounded border-2 border-gray-500 p-2 w-full text-gray-900"
             />
           </div>
@@ -49,6 +51,7 @@
             <input
               name="password"
               type="password"
+              required
               class="rounded border-2 border-gray-500 p-2 w-full text-gray-900"
             />
           </div>
@@ -64,6 +67,11 @@
             </p>
           </div>
         </form>
+        <% if(messages && messages.error && messages.error.length > 0)  { %>
+          <% for(var i=0; i<messages.error.length; i++) { %>
+            <div class="bg-red-500 mt-4 py-2 px-3 rounded shadow-lg font-mono font-semibold text-white">Error: <%= messages.error[i] %> !!</div>
+          <% } %>
+        <% } %>
       </div>
     </div>
   </body>

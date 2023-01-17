@@ -18,8 +18,7 @@ const app = express();
 const Sequelize = require("sequelize");
 
 //==================================================
-
-// middleware
+//============ MIDDLEWARE ==========================
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
@@ -135,8 +134,7 @@ async function verifyVoter(voterID, password, electionName) {
 }
 
 //==================================================
-
-// get requests
+//============ GET REQUESTS ========================
 
 app.get("/", async function (req, res) {
   if (req.user) {
@@ -170,6 +168,7 @@ app.get("/elections", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
   const elections = await Election.findAll(
     {
       where: { adminId: adminId },
+      order: [["id", "ASC"]],
     },
     { order: [["id", "ASC"]] }
   );
@@ -244,10 +243,10 @@ app.get(
 );
 
 app.get(
-  "/answers/:id",
+  "/answers/:questionId",
   connectEnsureLogin.ensureLoggedIn(),
   async (req, res) => {
-    const question = await Question.findByPk(req.params.id);
+    const question = await Question.findByPk(req.params.questionId);
     res.render("add_answer", { question, csrfToken: req.csrfToken() });
   }
 );
@@ -315,8 +314,7 @@ app.get(
 );
 
 //==================================================
-
-// post requests
+//================== POST REQUESTS =================
 
 app.post(
   "/session",
@@ -331,6 +329,18 @@ app.post(
 
 app.post("/admins", async (req, res) => {
   console.log(req.body);
+  if (req.body.firstName == "") {
+    req.flash("error", "First Name is required");
+    return res.redirect("/signup");
+  }
+  if (req.body.email == "") {
+    req.flash("error", "Invalid Email");
+    return res.redirect("/signup");
+  }
+  if (req.body.password.length < 6) {
+    req.flash("error", "Password must be at least 6 characters");
+    return res.redirect("/signup");
+  }
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
     const user = await Admin.create({
@@ -347,7 +357,7 @@ app.post("/admins", async (req, res) => {
       res.redirect("/elections");
     });
   } catch (error) {
-    console.log(error);
+    req.flash("error", "Email already registered");
     res.redirect("/signup");
   }
 });
@@ -357,6 +367,14 @@ app.post(
   connectEnsureLogin.ensureLoggedIn(),
   async (req, res) => {
     console.log(req.body);
+    if (req.body.title == "") {
+      req.flash("error", "Election title is required");
+      return res.redirect("/elections/add");
+    }
+    if (req.body.description == "") {
+      req.flash("error", "Election description is required");
+      return res.redirect("/elections/add");
+    }
     try {
       await Election.create({
         title: req.body.title,
@@ -377,6 +395,19 @@ app.post(
   connectEnsureLogin.ensureLoggedIn(),
   async (req, res) => {
     console.log(req.body);
+    const election = await Election.findByPk(req.body.electionId);
+    if (election.state == "running") {
+      req.flash("error", "Election is already running");
+      return res.redirect(`/questions/add/${req.body.electionId}`);
+    }
+    if (req.body.title == "") {
+      req.flash("error", "Question title is required");
+      return res.redirect(`/questions/add/${req.body.electionId}`);
+    }
+    if (req.body.description == "") {
+      req.flash("error", "Question description is required");
+      return res.redirect(`/questions/add/${req.body.electionId}`);
+    }
     try {
       await Question.create({
         title: req.body.title,
@@ -396,6 +427,19 @@ app.post(
   connectEnsureLogin.ensureLoggedIn(),
   async (req, res) => {
     console.log(req.body);
+    const election = await Election.findByPk(req.body.electionId);
+    if (election.state == "running") {
+      req.flash("error", "Election is already running");
+      return res.redirect(`/questions/edit/${req.params.id}`);
+    }
+    if (req.body.title == "") {
+      req.flash("error", "Question title is required");
+      return res.redirect(`/questions/edit/${req.params.id}`);
+    }
+    if (req.body.description == "") {
+      req.flash("error", "Question description is required");
+      return res.redirect(`/questions/edit/${req.params.id}`);
+    }
     try {
       await Question.update(
         {
@@ -419,6 +463,16 @@ app.post(
   connectEnsureLogin.ensureLoggedIn(),
   async (req, res) => {
     console.log(req.body);
+    const question = await Question.findByPk(req.params.questionId);
+    const election = await Election.findByPk(question.electionId);
+    if (election.state == "running") {
+      req.flash("error", "Election is already running");
+      return res.redirect(`/answers/${req.params.questionId}`);
+    }
+    if (req.body.body == "") {
+      req.flash("error", "Answer body is required");
+      return res.redirect(`/answers/${req.params.questionId}`);
+    }
     try {
       await Answer.create({
         body: req.body.body,
@@ -438,6 +492,16 @@ app.post(
   connectEnsureLogin.ensureLoggedIn(),
   async (req, res) => {
     console.log(req.body);
+    const question = await Question.findByPk(req.body.questionId);
+    const election = await Election.findByPk(question.electionId);
+    if (election.state == "running") {
+      req.flash("error", "Election is already running");
+      return res.redirect(`/questions/edit/${req.body.questionId}`);
+    }
+    if (req.body.body == "") {
+      req.flash("error", "Answer body is required");
+      return res.redirect(`/questions/edit/${req.body.questionId}`);
+    }
     try {
       await Answer.update(
         {
@@ -455,8 +519,59 @@ app.post(
   }
 );
 
+app.post(
+  "/election/launch/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    console.log(req.body);
+    const election = await Election.findOne({
+      where: { id: req.params.id },
+      include: [
+        {
+          model: Question,
+          include: [Answer],
+        },
+      ],
+    });
+    if (election.Questions.length == 0) {
+      req.flash("error", "Election must have at least one question");
+      return res.redirect(`/election/launch/${req.params.id}`);
+    }
+    for (let i = 0; i < election.Questions.length; i++) {
+      if (election.Questions[i].Answers.length < 2) {
+        req.flash("error", "Each question must have at least two answers");
+        return res.redirect(`/election/launch/${req.params.id}`);
+      }
+    }
+
+    try {
+      await Election.update(
+        {
+          state: "running",
+          customURL: req.body.customURL,
+        },
+        {
+          where: { id: req.params.id },
+        }
+      );
+      return res.redirect(`/elections`);
+    } catch (error) {
+      console.log(error);
+      return res.sendStatus(500);
+    }
+  }
+);
+
 app.post("/voters", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
   console.log(req.body);
+  if (req.body.voterID == "") {
+    req.flash("error", "VoterID is required");
+    return res.redirect(`/voters/add/${req.body.electionId}`);
+  }
+  if (req.body.password.length < 6) {
+    req.flash("error", "Password must be at least 6 characters");
+    return res.redirect(`/voters/add/${req.body.electionId}`);
+  }
   try {
     await Voter.create({
       firstName: req.body.firstName,
