@@ -17,6 +17,7 @@ module.exports = {
       },
       customURL: {
         type: Sequelize.STRING,
+        unique: true,
       },
       state: {
         type: Sequelize.STRING,

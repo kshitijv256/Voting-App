@@ -2,7 +2,7 @@
 // imports
 
 const express = require("express");
-const csrf = require("tiny-csrf"); // using csrf
+const csrf = require("csurf"); // using csrf
 const cookieParser = require("cookie-parser");
 const passport = require("passport"); // using passport
 const LocalStrategy = require("passport-local"); // using passport-local as strategy
@@ -29,7 +29,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(cookieParser("some other secret string"));
 // ["POST", "PUT", "DELETE"]));
-app.use(csrf("32_characterslomgstringis_enough", ["POST", "PUT", "DELETE"]));
+app.use(csrf({ cookie: true }));
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(
@@ -110,14 +110,14 @@ async function authencticateVoter(voterID, password) {
     });
 }
 
-async function verifyVoter(voterID, password, electionName) {
+async function verifyVoter(voterID, password, electionURL) {
   const voter = await authencticateVoter(voterID, password);
   if (!voter) {
     return false;
   }
   return Election.findOne({
     where: {
-      id: electionName,
+      customURL: electionURL,
     },
   })
     .then(async (election) => {
@@ -264,7 +264,7 @@ app.get(
 
 app.get("/e/:customURL", async (req, res) => {
   const election = await Election.findOne({
-    where: { id: req.params.customURL },
+    where: { customURL: req.params.customURL },
     include: [
       {
         model: Question,
@@ -276,18 +276,19 @@ app.get("/e/:customURL", async (req, res) => {
 
   if (election.state == "running") {
     res.render("voter_login", {
-      electionName: req.params.customURL,
+      electionName: election.title,
+      electionURL: req.params.customURL,
       csrfToken: req.csrfToken(),
     });
   } else if (election.state == "new") {
     res.render("closed", {
-      electionName: req.params.customURL,
+      electionURL: req.params.customURL,
       csrfToken: req.csrfToken(),
     });
   } else {
     res.render("results", {
       election: election,
-      electionName: req.params.customURL,
+      electionURL: req.params.customURL,
       csrfToken: req.csrfToken(),
     });
   }
@@ -543,12 +544,15 @@ app.post(
         return res.redirect(`/election/launch/${req.params.id}`);
       }
     }
-
+    let url = req.body.customURL;
+    if (url == "") {
+      url = election.id;
+    }
     try {
       await Election.update(
         {
           state: "running",
-          customURL: req.body.customURL,
+          customURL: url,
         },
         {
           where: { id: req.params.id },
@@ -587,17 +591,17 @@ app.post("/voters", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
   }
 });
 
-app.post("/elections/start", async (req, res) => {
+app.post("/e/:customURL/start", async (req, res) => {
   console.log(req.body);
   try {
     const result = await verifyVoter(
       req.body.voterID,
       req.body.password,
-      req.body.electionName
+      req.body.electionURL
     );
     if (result) {
       const election = await Election.findOne({
-        where: { id: req.body.electionName },
+        where: { customURL: req.body.electionURL },
         include: [
           {
             model: Question,
@@ -613,13 +617,14 @@ app.post("/elections/start", async (req, res) => {
         return res.render("myElection", {
           election,
           voter,
-          csrfToken: req.csrfToken(),
+          csrfToken: req.body.csrfToken,
         });
       } else {
         return res.render("voted", { csrfToken: req.csrfToken() });
       }
     } else {
-      return res.redirect(`/e/${req.body.electionName}`);
+      req.flash("error", "Invalid VoterID or Password");
+      return res.redirect(`/e/${req.body.electionURL}`);
     }
   } catch (error) {
     console.log(error);
@@ -711,6 +716,15 @@ app.delete(
   "/elections/:id",
   connectEnsureLogin.ensureLoggedIn(),
   async (req, res) => {
+    const election = await Election.findOne({
+      where: { id: req.params.id },
+    });
+    if (election.state == "running") {
+      return res.json({
+        success: false,
+        message: "Unable to delete a running election",
+      });
+    }
     console.log(req.body);
     try {
       await Election.destroy({
@@ -729,6 +743,18 @@ app.delete(
   connectEnsureLogin.ensureLoggedIn(),
   async (req, res) => {
     console.log(req.body);
+    const question = await Question.findOne({
+      where: { id: req.params.id },
+    });
+    const election = await Election.findOne({
+      where: { id: question.electionId },
+    });
+    if (election.state == "running") {
+      return res.json({
+        success: false,
+        message: "Unable to delete in a running election",
+      });
+    }
     try {
       await Question.destroy({
         where: { id: req.params.id },
@@ -746,6 +772,21 @@ app.delete(
   connectEnsureLogin.ensureLoggedIn(),
   async (req, res) => {
     console.log(req.body);
+    const answer = await Answer.findOne({
+      where: { id: req.params.id },
+    });
+    const question = await Question.findOne({
+      where: { id: answer.questionId },
+    });
+    const election = await Election.findOne({
+      where: { id: question.electionId },
+    });
+    if (election.state == "running") {
+      return res.json({
+        success: false,
+        message: "Unable to delete in a running election",
+      });
+    }
     try {
       await Answer.destroy({
         where: { id: req.params.id },

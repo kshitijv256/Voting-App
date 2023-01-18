@@ -7,12 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      let token = document
-        .querySelector('meta[name="csrf-token"]')
-        .getAttribute("content");
-      function deleteElection(id) {
+      // let token = document.querySelector('meta[name="csrf-token"]').content;
+      function deleteElection(id, token) {
+        let errBox = document.getElementById("err");
         fetch(`/elections/${id}`, {
-          method: "delete",
+          method: "DELETE",
           headers: {
             "Content-Type": "application/json",
           },
@@ -32,13 +31,14 @@
     </script>
     <title>All Elections</title>
   </head>
+
   <body>
-    <div class="bg-blue-400 font-sans text-2xl">
+    <div class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 font-sans text-2xl">
       <div class="flex flex-row justify-between pr-4">
         <h1 class="w-3/5 p-5 text-white">Welcome, <%= name %></h1>
         <div class="flex flex-row justify-end">
           <div
-            class="bg-blue-400 hover:bg-blue-300 cursor-pointer flex items-center"
+            class="hover:bg-white/20 cursor-pointer flex items-center"
           >
             <a href="/logout" class="text-white px-2"> Logout </a>
           </div>
@@ -47,13 +47,15 @@
     </div>
     <div class="flex flex-row justify-end">
       <div
-        class="rounded bg-blue-400 hover:bg-blue-500 p-2 mt-4 mr-4 text-white"
+        class="rounded bg-pink-400 hover:bg-pink-500 p-2 mt-4 mr-4 text-white"
       >
-        <a href="/elections/add">+Add Election</a>
+        <a href="/elections/add">
+          Add Election
+        </a>
       </div>
     </div>
     <div class="flex flex-col items-center">
-      <% for(var i = 0; i < elections.length; i++) { %>
+      <% for(var i=0; i < elections.length; i++) { %>
       <div class="w-4/5 shadow-xl p-4 mt-4 rounded-md">
         <h1 class="text-2xl font-bold mb-4"><%= elections[i].title %></h1>
         <p class="text-lg text-gray-600 mb-4">
@@ -64,20 +66,20 @@
           class="bg-blue-400 p-2 rounded m-2 hover:bg-blue-500 text-white"
           >View details</a
         >
-        <a
-          href="#"
-          onclick="deleteElection(`<%= elections[i].id %>`)"
+        <button
+          onclick="deleteElection(`<%= elections[i].id %>`, `<%= csrfToken %>`)"
           class="bg-red-400 p-2 rounded m-2 hover:bg-red-500 text-white"
-          >Delete</a
         >
-        <% if(elections[i].state == "new") { %>
+          Delete
+        </button>
+        <% if(elections[i].state=="new" ) { %>
         <a
           href="/election/launch/<%= elections[i].id %>"
           class="bg-green-400 p-2 rounded m-2 hover:bg-green-500 text-white"
         >
           Launch
         </a>
-        <% } else if (elections[i].state == "running") { %>
+        <% } else if (elections[i].state=="running" ) { %>
         <a
           href="/election/stop/<%= elections[i].id %>"
           class="bg-purple-400 p-2 rounded m-2 hover:bg-purple-500 text-white"
@@ -85,12 +87,28 @@
           Stop
         </a>
         <% } else { %>
-          <div class="bg-gray-400 p-2 rounded m-2 hover:bg-gray-500 text-white">
-            Ended
-          </div>
+        <div class="bg-gray-400 p-2 rounded m-2 hover:bg-gray-500 text-white">
+          Ended
+        </div>
         <% } %>
       </div>
       <% } %>
+
+      <div
+        id="err"
+        class="bg-red-500 mt-4 rounded font-mono font-semibold text-white"
+      ></div>
+      <div class="w-4/5 shadow-xl mt-4 rounded-md">
+        <% if(messages && messages.error && messages.error.length> 0) { %>
+        <% for(var i=0; i<messages.error.length; i++) { %>
+        <div
+          class="bg-red-500 mt-4 py-2 px-3 rounded shadow-lg font-mono font-semibold text-white"
+        >
+          Error: <%= messages.error[i] %> !!
+        </div>
+        <% } %>
+        <% } %>
+      </div>
     </div>
   </body>
 </html>

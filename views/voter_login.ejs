@@ -13,12 +13,12 @@
   <body>
     <div class="bg-blue-400 font-sans text-2xl">
       <div class="flex flex-row justify-between pr-4">
-        <h1 class="w-3/5 p-5 text-white">Login to your account</h1>
+        <h1 class="w-3/5 p-5 text-white">Login to vote in <%= electionName %></h1>
       </div>
     </div>
     <div class="grid grid-cols-6 p-3 gap-2">
       <div class="col-start-3 col-span-2">
-        <form action="/elections/start" method="post">
+        <form action="/e/<%= electionURL %>/start" method="post">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
           <div class="py-3">
             <label for="voterID">VoterID</label>
@@ -36,7 +36,7 @@
               class="rounded border-2 border-gray-500 p-2 w-full text-gray-900"
             />
           </div>
-          <input type="hidden" name="electionName" value="<%= electionName %>" />
+          <input type="hidden" name="electionURL" value="<%= electionURL %>" />
           <div class="py-3 flex flex-row">
             <button
               type="submit"
@@ -47,6 +47,11 @@
             <p class="py-2 px-4">New here? <a href="/signup" class="text-blue-500">Sign-up</a></p>
           </div>
         </form>
+        <% if(messages && messages.error && messages.error.length > 0)  { %>
+          <% for(var i=0; i<messages.error.length; i++) { %>
+            <div class="bg-red-500 mt-4 py-2 px-3 rounded shadow-lg font-mono font-semibold text-white">Error: <%= messages.error[i] %> !!</div>
+          <% } %>
+        <% } %>
       </div>
     </div>
   </body>
