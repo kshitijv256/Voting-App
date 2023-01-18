@@ -165,13 +165,11 @@ app.get("/elections", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
   const adminId = req.user.id;
   const admin = await Admin.findByPk(adminId);
   const name = admin.firstName + " " + admin.lastName;
-  const elections = await Election.findAll(
-    {
-      where: { adminId: adminId },
-      order: [["id", "ASC"]],
-    },
-    { order: [["id", "ASC"]] }
-  );
+  const elections = await Election.findAll({
+    where: { adminId: adminId },
+    include: [Question],
+    order: [["id", "ASC"]],
+  });
   if (req.accepts("html")) {
     res.render("elections", { elections, name, csrfToken: req.csrfToken() });
   } else {
@@ -313,6 +311,22 @@ app.get(
     });
   }
 );
+
+app.get("/election/:id/results", async (req, res) => {
+  const election = await Election.findByPk(req.params.id, {
+    include: [
+      {
+        model: Question,
+        include: [Answer],
+      },
+    ],
+    order: [[Question, Answer, "id", "ASC"]],
+  });
+  res.render("results", {
+    election: election,
+    csrfToken: req.csrfToken(),
+  });
+});
 
 //==================================================
 //================== POST REQUESTS =================
@@ -686,28 +700,26 @@ app.post("/elections/:id/answers", async (req, res) => {
 //==================================================
 // put requests
 
-// app.put(
-//   "/answers/edit/:id/",
-//   connectEnsureLogin.ensureLoggedIn(),
-//   async (req, res) => {
-//     console.log(req.body);
-//     try {
-//       const answer = await Answer.findByPk(req.params.id);
-//       const updatedQuestion = await Question.update(
-//         {
-//           correct: req.params.id,
-//         },
-//         {
-//           where: { id: answer.questionId },
-//         }
-//       );
-//       return res.json(updatedQuestion);
-//     } catch (error) {
-//       console.log(error);
-//       return res.status(422).json(error);
-//     }
-//   }
-// );
+app.put(
+  "/election/stop/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    try {
+      await Election.update(
+        {
+          state: "closed",
+        },
+        {
+          where: { id: req.params.id },
+        }
+      );
+      return res.json({ success: true });
+    } catch (error) {
+      console.log(error);
+      return res.sendStatus(500);
+    }
+  }
+);
 
 //==================================================
 // delete requests
