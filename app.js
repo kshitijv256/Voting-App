@@ -191,6 +191,8 @@ app.get(
     const election = await Election.findByPk(req.params.id);
     const questions = await Question.findAll({
       where: { electionId: req.params.id },
+      include: [Answer],
+      order: [[Answer, "id", "ASC"]],
     });
     const voters = await Voter.findAll({
       where: { electionId: req.params.id },
@@ -224,6 +226,7 @@ app.get(
   connectEnsureLogin.ensureLoggedIn(),
   async (req, res) => {
     const question = await Question.findByPk(req.params.id);
+    const election = await Election.findByPk(question.electionId);
     const answers = await Answer.findAll({
       where: { questionId: req.params.id },
       order: [["id", "ASC"]],
@@ -232,6 +235,7 @@ app.get(
       res.render("edit_question", {
         question,
         answers,
+        election,
         csrfToken: req.csrfToken(),
       });
     } else {
@@ -275,11 +279,6 @@ app.get("/e/:customURL", async (req, res) => {
   if (election.state == "running") {
     res.render("voter_login", {
       electionName: election.title,
-      electionURL: req.params.customURL,
-      csrfToken: req.csrfToken(),
-    });
-  } else if (election.state == "new") {
-    res.render("closed", {
       electionURL: req.params.customURL,
       csrfToken: req.csrfToken(),
     });
@@ -760,7 +759,14 @@ app.delete(
     });
     const election = await Election.findOne({
       where: { id: question.electionId },
+      include: [Question],
     });
+    if (election.Questions.length <= 1) {
+      return res.json({
+        success: false,
+        message: "Election must have 1 question",
+      });
+    }
     if (election.state == "running") {
       return res.json({
         success: false,
@@ -817,20 +823,6 @@ module.exports = app;
 
 //==================================================
 
-//Add delete option for questions X
-
-// Add delete option for answers X
-
-// add correct answer option for questions X
-
-// add delete option for elections X
-
-// add voters table X
-
-// add voters to elections X
-
-// add validations
-
-// add flash messages
-
 // add styling to all pages
+
+// add message if election is running to edit pages

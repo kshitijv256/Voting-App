@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
     <title>Add Election</title>
-  </head>
+  </head> 
   <body>
     <div
       class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 font-sans text-2xl shadow-md"
@@ -39,7 +39,7 @@
               type="text"
               name="title"
               id="title"
-              class="rounded w-full p-2 border-2 border-blue-300"
+              class="rounded w-full p-2 border-2 border-indigo-300"
             />
           </div>
           <div class="flex-auto">
@@ -48,7 +48,7 @@
               type="text"
               name="description"
               id="description"
-              class="rounded w-full p-2 border-2 border-blue-300"
+              class="rounded w-full p-2 border-2 border-indigo-300"
             />
             <input type="hidden" name="adminId" value="<%= adminId %>" />
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />

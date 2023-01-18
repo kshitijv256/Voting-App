@@ -5,32 +5,53 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="csrf-token" content="<%= csrfToken %>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
     <title>Election</title>
   </head>
-  <body>
-    <h1><%= election.title %></h1>
-    <h2><%= election.description %></h2>
-    <form action="/elections/<%= election.id %>/answers" method="POST">
-      <% for (let i = 0; i < election.Questions.length; i++) { %>
-      <h3><%= election.Questions[i].title %></h3>
-      <h4><%= election.Questions[i].description %></h4>
-      <fieldset name="q<%= i %>">
-        <% for (let j = 0; j < election.Questions[i].Answers.length; j++) { %>
-        <input
-          type="radio"
-          required
-          name="q<%= i %>"
-          value="<%= election.Questions[i].Answers[j].id %>"
-        />
-        <label for="<%= election.Questions[i].Answers[j].id %>">
-          <%= election.Questions[i].Answers[j].body %>
-        </label>
+  <body class="min-h-full bg-purple-200">
+    <div
+      class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 font-sans text-2xl shadow-md"
+    >
+      <h1 class="p-4 text-white"><%= election.title %></h1>
+    </div>
+    <h2 class="text-xl text-gray-600 m-4"><%= election.description %></h2>
+    <hr />
+    <h2 class="text-2xl m-2">Please select one option for every question</h2>
+    <form
+      action="/elections/<%= election.id %>/answers"
+      method="POST"
+      class="m-6 w-full"
+    >
+        <% for (let i = 0; i < election.Questions.length; i++) { %>
+        <h3 class="text-xl">
+          <span class="font-semibold"><%= i+1 %>. </span> <%=
+          election.Questions[i].title %>
+        </h3>
+        <h4 class="text-xl text-gray-600 ml-4">
+          <%= election.Questions[i].description %>
+        </h4>
+        <fieldset name="q<%= i %>" class="flex flex-col w-4/5 justify-start">
+          <% for (let j = 0; j < election.Questions[i].Answers.length; j++) { %>
+          <input
+            type="radio"
+            required
+            name="q<%= i %>"
+            id="<%= election.Questions[i].Answers[j].id %>"
+            value="<%= election.Questions[i].Answers[j].id %>"
+            class="w-0.5 peer/<%= j %>"
+          />
+          <label
+            for="<%= election.Questions[i].Answers[j].id %>"
+            class="flex-auto rounded-md shadow-sm bg-purple-300 peer-checked/<%= j %>:bg-pink-300 px-3 py-2 m-2 w-full"
+          >
+            <%= election.Questions[i].Answers[j].body %>
+          </label>
+          <% } %>
+        </fieldset>
         <% } %>
-      </fieldset>
-      <% } %>
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-      <input type="hidden" name="voterId" value="<%= voter.id %>" />
-      <input type="submit" value="Submit Choices" />
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <input type="hidden" name="voterId" value="<%= voter.id %>" />
+        <button type="submit" class="rounded bg-indigo-400 hover:bg-indigo-500 p-2 mt-4 mr-4 text-white shadow-md cursor-pointer">Submit Choices</button>
     </form>
   </body>
 </html>

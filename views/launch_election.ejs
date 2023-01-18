@@ -9,27 +9,30 @@
     <title>Launch</title>
   </head>
   <body>
-    <div class="bg-blue-400 font-sans text-2xl">
+    <div
+      class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 font-sans text-2xl shadow-md"
+    >
       <div class="flex flex-row justify-between pr-4">
         <h1 class="w-3/5 p-5 text-white"><%= election.title %></h1>
         <div class="flex flex-row justify-end">
           <div
-            class="bg-blue-400 hover:bg-blue-300 cursor-pointer flex items-center"
+            class="hover:bg-white/20  cursor-pointer flex items-center"
           >
             <a href="/elections" class="text-white px-2"> All Elections </a>
           </div>
           <div
-            class="bg-blue-400 hover:bg-blue-300 cursor-pointer flex items-center"
+            class="hover:bg-white/20  cursor-pointer flex items-center"
           >
             <a href="/logout" class="text-white px-2"> Logout </a>
           </div>
         </div>
       </div>
     </div>
-    <div class="flex flex-row w-full">
+    <div class="flex flex-col items-center">
+      <div class="h-1/6 text-white">.</div>
       <div class="flex flex-col items-center w-full">
-        <h2 class="text-3xl font-bold mb-4">Questions</h2>
-        <div class="flex flex-col w-4/5 shadow-xl p-4 mt-4 rounded-md">
+        <h2 class="text-3xl font-bold my-4">Questions</h2>
+        <div class="flex flex-col w-4/5 shadow-xl p-4 mt-4 rounded-md bg-purple-200">
           <% for (let i = 0; i < election.Questions.length; i++) { %>
           <h1 class="text-2xl font-bold mb-4">
             Q<%= i+1 %> : <%= election.Questions[i].title %>
@@ -38,21 +41,21 @@
             <%= election.Questions[i].description %>
           </p>
           <% for (let j = 0; j < election.Questions[i].Answers.length; j++) { %>
-          <h2 class="text-xl semi-bold mb-4">
-            option <%= j+1 %> : <%= election.Questions[i].Answers[j].body %>
+          <h2 class="text-xl mb-4 text-gray-700">
+            <span class="font-semibold">option <%= j+1 %></span> : <%= election.Questions[i].Answers[j].body %>
           </h2>
           <% } %>
           <% } %>
         </div>
         <div class="flex flex-col w-4/5">
-          <div class="w-1/3 shadow-xl p-4 mt-4 rounded-md self-end">
+          <div class="w-1/3 shadow-xl p-4 mt-4 rounded-md self-end bg-purple-200">
             <form action="/election/launch/<%= election.id %>" method="post" class="flex flex-row">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <div class="flex-auto">
                 <label for="customURL">Custom url for election?</label>
-                <input type="text" name="customURL" class="rounded p-2 border-2 border-blue-300">
+                <input type="text" name="customURL" class="rounded p-2 border-2 border-indigo-300">
               </div>
-              <button type="submit" class="bg-blue-400 p-2 rounded m-2 hover:bg-blue-500 cursor-pointer text-white self-end">
+              <button type="submit" class="bg-pink-400 p-2 rounded m-2 hover:bg-pink-500 cursor-pointer text-white self-end">
                 Launch
               </button>
             </form>

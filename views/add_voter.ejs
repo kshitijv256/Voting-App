@@ -9,25 +9,28 @@
     <title>Add Voter</title>
   </head>
   <body>
-    <div class="bg-blue-400 font-sans text-2xl">
+    <div
+      class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 font-sans text-2xl shadow-md"
+    >
       <div class="flex flex-row justify-between pr-4">
         <h1 class="w-3/5 p-5 text-white">Add new Voter</h1>
         <div class="flex flex-row justify-end">
           <div
-            class="bg-blue-400 hover:bg-blue-300 cursor-pointer flex items-center"
+            class="hover:bg-white/20  cursor-pointer flex items-center"
           >
             <a href="/elections" class="text-white px-2"> All Elections </a>
           </div>
           <div
-            class="bg-blue-400 hover:bg-blue-300 cursor-pointer flex items-center"
+            class="hover:bg-white/20  cursor-pointer flex items-center"
           >
             <a href="/logout" class="text-white px-2"> Logout </a>
           </div>
         </div>
       </div>
     </div>
-    <div class="flex flex-row justify-center">
-      <div class="shadow-xl p-4 mt-4 rounded-md w-3/5">
+    <div class="flex flex-col items-center">
+      <div class="h-1/6 text-white">.</div>
+      <div class="shadow-xl p-4 mt-4 rounded-md w-3/5 bg-purple-200">
         <h1 class="text-2xl font-bold mb-4">Add Voter</h1>
         <form action="/voters" method="post">
           <div class="flex-auto">
@@ -36,7 +39,7 @@
               type="text"
               name="firstName"
               id="firstName"
-              class="rounded w-full p-2 border-2 border-blue-300"
+              class="rounded w-full p-2 border-2 border-indigo-300"
             />
           </div>
           <div class="flex-auto">
@@ -45,7 +48,7 @@
               type="text"
               name="lastName"
               id="lastName"
-              class="rounded w-full p-2 border-2 border-blue-300"
+              class="rounded w-full p-2 border-2 border-indigo-300"
             />
           </div>
           <div class="flex-auto">
@@ -54,7 +57,7 @@
               type="text"
               name="voterID"
               id="voterID"
-              class="rounded w-full p-2 border-2 border-blue-300"
+              class="rounded w-full p-2 border-2 border-indigo-300"
             />
           </div>
           <div class="flex-auto">
@@ -63,14 +66,14 @@
               type="password"
               name="password"
               id="password"
-              class="rounded w-full p-2 border-2 border-blue-300"
+              class="rounded w-full p-2 border-2 border-indigo-300"
             />
           </div>
           <input type="hidden" name="electionId" value="<%= electionId %>" />
           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
           <div class="flex flex-row justify-end w-full">
             <button
-              class="bg-blue-400 p-2 rounded m-2 hover:bg-blue-500 text-white"
+              class="bg-pink-400 p-2 rounded m-2 hover:bg-pink-500 text-white"
               type="submit"
             >
               Add

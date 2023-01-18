@@ -33,21 +33,23 @@
     <title>Edit Question</title>
   </head>
   <body>
-    <div class="bg-blue-400 font-sans text-2xl">
+    <div
+      class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 font-sans text-2xl shadow-md"
+    >
       <div class="flex flex-row justify-between pr-4">
-        <h1 class="w-3/5 p-5 text-white">The Voting App</h1>
+        <h1 class="w-3/5 p-5 text-white">Edit Question and answer options</h1>
         <div class="flex flex-row justify-end">
-          <div class="bg-blue-400 hover:bg-blue-300 cursor-pointer flex items-center">
+          <div class="hover:bg-white/20  cursor-pointer flex items-center">
             <a href="/elections/<%= question.electionId %>" class="text-white px-2">
               Back
             </a>
           </div>
-          <div class="bg-blue-400 hover:bg-blue-300 cursor-pointer flex items-center">
+          <div class="hover:bg-white/20  cursor-pointer flex items-center">
             <a href="/elections" class="text-white px-2">
               All Elections
             </a>
           </div>
-          <div class="bg-blue-400 hover:bg-blue-300 cursor-pointer flex items-center">
+          <div class="hover:bg-white/20  cursor-pointer flex items-center">
             <a href="/logout" class="text-white px-2">
               Logout
             </a>
@@ -55,8 +57,25 @@
         </div>
       </div>
     </div>
-    <div class="flex flex-row justify-center">
-      <div class="shadow-xl p-4 mt-4 rounded-xl w-3/5">
+    <div class="flex flex-col items-center">
+      <% if (election.state == "running") { %>
+      <div class="flex flex-row flex-nowrap bg-yellow-300 p-4 mt-4 rounded-xl w-3/5 text-gray-600">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g clip-path="url(#clip0_6_8816)">
+          <path d="M15.73 3H8.27L3 8.27V15.73L8.27 21H15.73L21 15.73V8.27L15.73 3ZM12 17.3C11.28 17.3 10.7 16.72 10.7 16C10.7 15.28 11.28 14.7 12 14.7C12.72 14.7 13.3 15.28 13.3 16C13.3 16.72 12.72 17.3 12 17.3ZM13 13H11V7H13V13Z" fill="white"/>
+          </g>
+          <defs>
+          <clipPath id="clip0_6_8816">
+          <rect width="24" height="24" fill="white"/>
+          </clipPath>
+          </defs>
+          </svg>
+          &nbsp;
+        Cannot make changes to a running election
+      </div>
+      <% } %>
+      <div class="h-1/6 text-white">.</div>
+      <div class="shadow-xl p-4 mt-4 rounded-xl w-3/5 bg-purple-200">
         <h1 class="text-2xl font-bold mb-4">Edit Question</h1>
         <form action="/questions/<%= question.id %>" method="post">
           <div class="flex-auto">
@@ -65,7 +84,7 @@
               type="text"
               name="title"
               id="title"
-              class="rounded w-full p-2 border-2 border-blue-300"
+              class="rounded w-full p-2 border-2 border-indigo-300"
               value="<%= question.title %>"
             />
           </div>
@@ -75,7 +94,7 @@
               type="text"
               name="description"
               id="description"
-              class="rounded w-full p-2 border-2 border-blue-300"
+              class="rounded w-full p-2 border-2 border-indigo-300"
               value="<%= question.description %>"
             />
           </div>
@@ -87,7 +106,7 @@
           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
           <div class="flex flex-row w-full justify-end px-2 py-4">
             <button
-              class="bg-blue-400 p-2 rounded m-2 hover:bg-blue-500 text-white"
+              class="bg-pink-400 p-2 rounded m-2 hover:bg-pink-500 text-white"
               type="submit"
             >
               Save Changes
@@ -97,9 +116,9 @@
         <div class="flex flex-row justify-between mx-4 mt-4">
           <h1 class="text-lg font-semibold">Answers</h1>
           <div
-            class="bg-blue-400 rounded p-1 hover:bg-blue-500 text-white hover:cursor-pointer px-2"
+            class="bg-pink-400 rounded p-1 hover:bg-pink-500 text-white hover:cursor-pointer px-2"
           >
-            <a href="/answers/<%= question.id %>">+Add more</a>
+            <a href="/answers/<%= question.id %>">+ Add more</a>
           </div>
         </div>
         <% for(var i = 0; i < answers.length; i++) { %>
@@ -113,7 +132,7 @@
               type="text"
               name="body"
               id="<%= answers[i].id %>"
-              class="rounded w-full p-2 border-2 border-blue-300"
+              class="rounded w-full p-2 border-2 border-indigo-300"
               value="<%= answers[i].body %>"
             />
             <input
@@ -125,7 +144,7 @@
             <div class="flex flex-row mt-2">
               <button
                 type="submit"
-                class="bg-blue-400 p-2 h-3/4 rounded hover:bg-blue-500 text-white"
+                class="bg-indigo-400 p-2 h-3/4 rounded hover:bg-indigo-500 text-white"
               >
                 Save
               </button>
