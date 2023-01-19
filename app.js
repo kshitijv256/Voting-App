@@ -887,9 +887,3 @@ app.delete(
 //==================================================
 
 module.exports = app;
-
-//==================================================
-
-// add styling to all pages
-
-// add message if election is running to edit pages
