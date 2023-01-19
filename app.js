@@ -321,8 +321,30 @@ app.get("/election/:id/results", async (req, res) => {
     ],
     order: [[Question, Answer, "id", "ASC"]],
   });
+  let voterCount;
+  let results = [];
+  for (let i = 0; i < election.Questions.length; i++) {
+    const question = election.Questions[i];
+    let temp = [];
+    voterCount = 0;
+    for (let j = 0; j < question.Answers.length; j++) {
+      const answer = question.Answers[j];
+      temp.push([j + 1, answer.votes]);
+      voterCount += answer.votes;
+    }
+    results.push(temp);
+  }
   res.render("results", {
+    voterCount,
     election: election,
+    csrfToken: req.csrfToken(),
+  });
+});
+
+app.get("/newpass", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
+  const admin = await Admin.findByPk(req.user.id);
+  res.render("newpassword", {
+    user: admin,
     csrfToken: req.csrfToken(),
   });
 });
@@ -589,6 +611,13 @@ app.post("/voters", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
     req.flash("error", "Password must be at least 6 characters");
     return res.redirect(`/voters/add/${req.body.electionId}`);
   }
+  const voter = await Voter.findOne({
+    where: { voterID: req.body.voterID },
+  });
+  if (voter) {
+    req.flash("error", "VoterID already exists");
+    return res.redirect(`/voters/add/${req.body.electionId}`);
+  }
   try {
     await Voter.create({
       firstName: req.body.firstName,
@@ -630,7 +659,7 @@ app.post("/e/:customURL/start", async (req, res) => {
         return res.render("myElection", {
           election,
           voter,
-          csrfToken: req.body.csrfToken,
+          csrfToken: req.csrfToken(),
         });
       } else {
         return res.render("voted", { csrfToken: req.csrfToken() });
@@ -689,7 +718,45 @@ app.post("/elections/:id/answers", async (req, res) => {
       ],
       order: [[Question, Answer, "id", "ASC"]],
     });
-    return res.render("results", { election, csrfToken: req.csrfToken() });
+    if (election.state == "running") {
+      return res.render("voted", { csrfToken: req.csrfToken() });
+    }
+    // return res.render("results", { election, csrfToken: req.csrfToken() });
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(500);
+  }
+});
+
+app.post("/newpass", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
+  console.log(req.body);
+  if (req.body.newPass.length < 6) {
+    req.flash("error", "Password must be at least 6 characters");
+    return res.redirect(`/newpass`);
+  }
+  if (req.body.newPass != req.body.cnfPass) {
+    req.flash("error", "Passwords do not match");
+    return res.redirect(`/newpass`);
+  }
+  const admin = await Admin.findOne({
+    where: { id: req.user.id },
+  });
+  const result = await bcrypt.compare(req.body.currPass, admin.password);
+  if (!result) {
+    req.flash("error", "Incorrect Password");
+    return res.redirect(`/newpass`);
+  }
+  const hashedPassword = await bcrypt.hash(req.body.newPass, saltRounds);
+  try {
+    await Admin.update(
+      {
+        password: hashedPassword,
+      },
+      {
+        where: { id: req.user.id },
+      }
+    );
+    return res.redirect(`/logout`);
   } catch (error) {
     console.log(error);
     return res.sendStatus(500);

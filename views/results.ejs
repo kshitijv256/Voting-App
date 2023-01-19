@@ -5,20 +5,38 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="csrf-token" content="<%= csrfToken %>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
     <title>Results</title>
   </head>
   <body>
-    <h1><%= election.title %></h1>
-    <h2><%= election.description %></h2>
+    <div
+      class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 font-sans text-2xl shadow-md flex f;ex-row justify-between"
+    >
+      <h1 class="py-3 px-4 text-white">Results: <%= election.title %></h1>
+      <h1 class="py-3 px-4 text-white">Voted: <%= voterCount %></h1>
+    </div>
+    <h2 class="text-gray-600 text-lg m-4"><%= election.description %></h2>
     <% for (let i = 0; i < election.Questions.length; i++) { %>
-    <h3><%= election.Questions[i].title %></h3>
-    <h4><%= election.Questions[i].description %></h4>
+    <div
+      class="rounded-md shadow-md mx-4 my-4 px-3 py-2 on hover:bg-purple-50"
+    >
+      <h3 class="text-xl p-2 text-indigo-900">
+        <%= election.Questions[i].title %>
+      </h3>
+      <h4 class="text-lg text-indigo-700 px-3 pb-2">
+        <%= election.Questions[i].description %>
+      </h4>
       <% for (let j = 0; j < election.Questions[i].Answers.length; j++) { %>
-        <p>
-          <%= election.Questions[i].Answers[j].body %>
-          <%= election.Questions[i].Answers[j].votes %>
-        </p>
+        <% let percentage = (election.Questions[i].Answers[j].votes / voterCount) * 100; %>
+      <div
+        class="rounded-lg bg-purple-200 hover:bg-purple-200/80 p-2 my-1 text-indigo-900 flex flex-row flex-nowrap justify-between"
+        style="width: <%= percentage %>%;"
+      >
+        <p>Option <%= j+1 %>: <%= election.Questions[i].Answers[j].body %></p>
+        <p class="text-pink-600">Votes : <%= election.Questions[i].Answers[j].votes %></p>
+      </div>
       <% } %>
+    </div>
     <% } %>
   </body>
 </html>

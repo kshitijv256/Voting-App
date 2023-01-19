@@ -60,6 +60,9 @@
         <h1 class="w-3/5 p-5 text-white">Welcome, <%= name %></h1>
         <div class="flex flex-row justify-end">
           <div class="hover:bg-white/20 cursor-pointer flex items-center">
+            <a href="/newpass" class="text-white px-2"> Change Password </a>
+          </div>
+          <div class="hover:bg-white/20 cursor-pointer flex items-center">
             <a href="/logout" class="text-white px-2"> Logout </a>
           </div>
         </div>
@@ -69,22 +72,17 @@
       <div
         class="flex flex-row flex-nowrap rounded bg-pink-400 hover:bg-pink-500 p-2 mt-4 mr-4 text-white shadow-md cursor-pointer"
       >
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <g clip-path="url(#clip0_6_8865)">
-            <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z" fill="white" />
-          </g>
-          <defs>
-            <clipPath id="clip0_6_8865">
-              <rect width="24" height="24" fill="white" />
-            </clipPath>
-          </defs>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g clip-path="url(#clip0_6_8870)">
+        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM17 13H13V17H11V13H7V11H11V7H13V11H17V13Z" fill="white"/>
+        </g>
+        <defs>
+        <clipPath id="clip0_6_8870">
+        <rect width="24" height="24" fill="white"/>
+        </clipPath>
+        </defs>
         </svg>
+        
         <a href="/elections/add"> Add Election </a>
       </div>
     </div>
