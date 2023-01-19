@@ -28,13 +28,15 @@
       </h4>
       <% for (let j = 0; j < election.Questions[i].Answers.length; j++) { %>
         <% let percentage = (election.Questions[i].Answers[j].votes / voterCount) * 100; %>
+        <div>
+            <p class="z-10">Option <%= j+1 %>: <%= election.Questions[i].Answers[j].body %></p>
+          </div>
       <div
         class="rounded-lg bg-purple-200 hover:bg-purple-200/80 p-2 my-1 text-indigo-900 flex flex-row flex-nowrap justify-between"
         style="width: <%= percentage %>%;"
       >
-        <p>Option <%= j+1 %>: <%= election.Questions[i].Answers[j].body %></p>
-        <p class="text-pink-600">Votes : <%= election.Questions[i].Answers[j].votes %></p>
-      </div>
+      <p class="text-pink-600 z-10">Votes : <%= election.Questions[i].Answers[j].votes %></p>
+    </div>
       <% } %>
     </div>
     <% } %>

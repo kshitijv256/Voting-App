@@ -283,7 +283,21 @@ app.get("/e/:customURL", async (req, res) => {
       csrfToken: req.csrfToken(),
     });
   } else {
+    let voterCount;
+    let results = [];
+    for (let i = 0; i < election.Questions.length; i++) {
+      const question = election.Questions[i];
+      let temp = [];
+      voterCount = 0;
+      for (let j = 0; j < question.Answers.length; j++) {
+        const answer = question.Answers[j];
+        temp.push([j + 1, answer.votes]);
+        voterCount += answer.votes;
+      }
+      results.push(temp);
+    }
     res.render("results", {
+      voterCount,
       election: election,
       electionURL: req.params.customURL,
       csrfToken: req.csrfToken(),
