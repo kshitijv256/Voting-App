@@ -11,13 +11,14 @@
   </head>
 
   <body>
-    <div class="bg-blue-400 font-sans text-2xl">
+    <div class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 font-sans text-2xl">
       <div class="flex flex-row justify-between pr-4">
-        <h1 class="w-3/5 p-5 text-white">Login to vote in <%= electionName %></h1>
+        <h1 class="w-3/5 p-5 text-white">Login to vote in election: <%= electionName %></h1>
       </div>
     </div>
-    <div class="grid grid-cols-6 p-3 gap-2">
-      <div class="col-start-3 col-span-2">
+    <div class="flex flex-col items-center">
+      <div class="h-1/6 text-white">.</div>
+      <div class="w-1/3 shadow-xl p-4 mt-4 rounded-md bg-purple-200">
         <form action="/e/<%= electionURL %>/start" method="post">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
           <div class="py-3">
@@ -25,7 +26,7 @@
             <input
               name="voterID"
               type="text"
-              class="rounded border-2 border-gray-500 p-2 w-full text-gray-900"
+              class="rounded border-2 border-indigo-500 p-2 w-full text-gray-900"
             />
           </div>
           <div class="py-3">
@@ -33,23 +34,23 @@
             <input
               name="password"
               type="password"
-              class="rounded border-2 border-gray-500 p-2 w-full text-gray-900"
+              class="rounded border-2 border-indigo-500 p-2 w-full text-gray-900"
             />
           </div>
           <input type="hidden" name="electionURL" value="<%= electionURL %>" />
           <div class="py-3 flex flex-row">
             <button
               type="submit"
-              class="py-2 px-6 rounded font-medium bg-blue-400 hover:bg-blue-500 text-white"
+              class="py-2 px-6 rounded font-medium bg-indigo-400 hover:bg-indigo-500 text-white"
             >
               Sign In
             </button>
-            <p class="py-2 px-4">New here? <a href="/signup" class="text-blue-500">Sign-up</a></p>
           </div>
         </form>
+      </div>
         <% if(messages && messages.error && messages.error.length > 0)  { %>
           <% for(var i=0; i<messages.error.length; i++) { %>
-            <div class="bg-red-500 mt-4 py-2 px-3 rounded shadow-lg font-mono font-semibold text-white">Error: <%= messages.error[i] %> !!</div>
+            <%- include('error', {message: messages.error[i]}) %>
           <% } %>
         <% } %>
       </div>

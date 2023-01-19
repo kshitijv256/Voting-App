@@ -175,7 +175,13 @@ describe("Voting App", function () {
     const agent = request.agent(server);
     await login(agent, "user1@test.com", "password");
     let res = await agent.get("/login");
-    const csrfToken = extractCsrfToken(res);
+    let csrfToken = extractCsrfToken(res);
+    res = await agent.post("/questions").send({
+      title: "Test Question 2",
+      description: "Test Description 2",
+      electionId: 1,
+      _csrf: csrfToken,
+    });
     res = await agent.delete("/questions/1").send({
       _csrf: csrfToken,
     });
