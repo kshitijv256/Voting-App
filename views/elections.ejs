@@ -127,7 +127,13 @@
           href="/election/<%= elections[i].id %>/results"
           class="bg-pink-400 p-2 rounded m-2 hover:bg-pink-500 text-white"
         >
-          Results
+        Results
+        </a>
+        <a
+          href="/e/<%= elections[i].customURL %>"
+          class="bg-blue-400 p-2 rounded m-2 hover:bg-blue-500 text-white"
+        >
+        Link
         </a>
         <% } else { %>
         <a href="" class="bg-gray-400 p-2 rounded m-2 hover:bg-gray-500 text-white">
@@ -138,6 +144,12 @@
           class="bg-pink-400 p-2 rounded m-2 hover:bg-pink-500 text-white"
         >
           Results
+        </a>
+        <a
+          href="/e/<%= elections[i].customURL %>"
+          class="bg-blue-400 p-2 rounded m-2 hover:bg-blue-500 text-white"
+        >
+        Link
         </a>
         <% } %>
       </div>

@@ -325,35 +325,39 @@ app.get(
   }
 );
 
-app.get("/election/:id/results", async (req, res) => {
-  const election = await Election.findByPk(req.params.id, {
-    include: [
-      {
-        model: Question,
-        include: [Answer],
-      },
-    ],
-    order: [[Question, Answer, "id", "ASC"]],
-  });
-  let voterCount;
-  let results = [];
-  for (let i = 0; i < election.Questions.length; i++) {
-    const question = election.Questions[i];
-    let temp = [];
-    voterCount = 0;
-    for (let j = 0; j < question.Answers.length; j++) {
-      const answer = question.Answers[j];
-      temp.push([j + 1, answer.votes]);
-      voterCount += answer.votes;
+app.get(
+  "/election/:id/results",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (req, res) => {
+    const election = await Election.findByPk(req.params.id, {
+      include: [
+        {
+          model: Question,
+          include: [Answer],
+        },
+      ],
+      order: [[Question, Answer, "id", "ASC"]],
+    });
+    let voterCount;
+    let results = [];
+    for (let i = 0; i < election.Questions.length; i++) {
+      const question = election.Questions[i];
+      let temp = [];
+      voterCount = 0;
+      for (let j = 0; j < question.Answers.length; j++) {
+        const answer = question.Answers[j];
+        temp.push([j + 1, answer.votes]);
+        voterCount += answer.votes;
+      }
+      results.push(temp);
     }
-    results.push(temp);
+    res.render("results", {
+      voterCount,
+      election: election,
+      csrfToken: req.csrfToken(),
+    });
   }
-  res.render("results", {
-    voterCount,
-    election: election,
-    csrfToken: req.csrfToken(),
-  });
-});
+);
 
 app.get("/newpass", connectEnsureLogin.ensureLoggedIn(), async (req, res) => {
   const admin = await Admin.findByPk(req.user.id);
