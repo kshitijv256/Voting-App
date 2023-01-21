@@ -1,20 +1,39 @@
 # Voting-App
 
-## Features implemented
+This a simple, easy to use and open source online voting platform where you can host polls and elections.
 
-### Admin role
+## Features
 
-- If they don’t already have an account, they can sign up first.
-- If they are an existing user, they are able to sign in with their email and password.
-- They are also be able to sign out if they'd like to.
-- Signed-in admins could see a list of elections they have created, and create a new one.
-- When creating an election, Admin can give a name for the election.
-- Admins can create a ballot - a list of questions they'd like voters to vote on.
-- Admins can add multiple questions to the ballot.
-- For each question, admins should be able to fill in a short title, and a longer description.
-- For each question, the admin can add answer options.
-- Admins can update the question title, description, and answer options.
-- Admins can delete questions and answer options.
-- Admins can mark an answer option as correct for any question.
+- Built with Node.js
+- Easy to use
+- Free to use / Open source
+- Simple navigation
+- Proper authentication
+- Can run multiple election at once
+- Provide a publicly accessible url for voters
+- See the live election status on results page
+- Can be used on multiple screens
 
-### 👉 [Try it out](https://voting-app-by-kshitij.onrender.com)
+## Screens
+
+#### Login Page
+![Login Page](assets/login.png)
+
+#### Dashboard
+![Dashboard](assets/main.png)
+
+#### Add Election Page
+![Add Election Page](assets/add_election.png)
+
+#### Election Ballot
+![Election Ballot](assets/ballot.png)
+
+#### Results Page
+![Results Page](assets/results.png)
+
+
+## Use It
+
+#### 👉 [Try it out](https://voting-app-by-kshitij.onrender.com)
+
+#### 👉 [Demo Video](https://www.loom.com/share/d6cc7903f34d440b85781c9f52ee3419)
